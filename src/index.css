@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== גופן ===== */
+* {
+  font-family: 'Assistant', sans-serif;
+}
+
+/* ===== כפתורים ===== */
+.glow-button {
+  box-shadow: 0 4px 14px 0 rgba(0, 44, 62, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glow-button:hover {
+  box-shadow: 0 6px 20px rgba(0, 44, 62, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ===== כרטיסים ===== */
+.glass-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 44, 62, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: all 0.4s ease;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(120, 188, 196, 0.1);
+  border-color: rgba(120, 188, 196, 0.3);
+}
+
+/* ===== קו קישוט תחת כותרת ===== */
+.wow-underline {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+}
+.wow-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: -2%;
+  width: 104%;
+  height: 35%;
+  background: linear-gradient(to left, #78bcc4, rgba(120, 188, 196, 0.2));
+  z-index: -1;
+  border-radius: 4px;
+  opacity: 0.6;
+}
+
+/* ===== כפתור קורל ===== */
+.coral-glow {
+  box-shadow: 0 4px 14px 0 rgba(247, 68, 78, 0.25);
+  transition: all 0.3s ease;
+}
+.coral-glow:hover {
+  box-shadow: 0 6px 20px rgba(247, 68, 78, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ===== מרקיז ===== */
+@keyframes marquee {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+.animate-marquee {
+  display: inline-block;
+  animation: marquee 40s linear infinite;
+}
