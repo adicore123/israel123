@@ -1,42 +1,123 @@
-import { useState, useEffect } from 'react';
-import React from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Icons } from './components/Icons.jsx';
 import AnimatedSection from './components/AnimatedSection.jsx';
 import ContactForm from './components/ContactForm.jsx';
+import AccessibilityMenu from './components/AccessibilityMenu.jsx';
+import SeoHead from './components/SeoHead.jsx';
+import WorkGalleryCards from './components/WorkGalleryCards.jsx';
+
+const galleryImported = {
+  ...import.meta.glob('./assets/gallery/*.{jpg,jpeg,jpe,png,webp}', { eager: true, import: 'default' }),
+  ...import.meta.glob('./assets/gallery/*.{JPG,JPEG,JPE,PNG,WEBP}', { eager: true, import: 'default' }),
+  ...import.meta.glob('../images/*.{jpg,jpeg,jpe,png,webp}', { eager: true, import: 'default' }),
+  ...import.meta.glob('../images/*.{JPG,JPEG,JPE,PNG,WEBP}', { eager: true, import: 'default' }),
+};
+const galleryFromBundled = (() => {
+  const seen = new Set();
+  return Object.keys(galleryImported)
+    .sort()
+    .map((path) => galleryImported[path])
+    .filter((src) => {
+      if (seen.has(src)) return false;
+      seen.add(src);
+      return true;
+    })
+    .map((src, i) => ({
+      src,
+      alt: `תיקון קורקינט או אופניים חשמליים — צילום עבודה ${i + 1} מהמעבדה או מהשטח`,
+    }));
+})();
+
+const serviceToneClass = {
+  teal: 'bg-[#78BCC4] text-[#002C3E]',
+  coral: 'bg-[#F7444E] text-white',
+  muted: 'bg-white/10 text-[#78BCC4]',
+};
 
 const servicesList = [
-  'אבחון תקלות מקצועי ומדויק',
-  'תיקוני חשמל ותקלות מורכבות',
-  'חילוץ ברגים תקועים / שבורים',
-  'הלחמות מקצועיות',
-  'החלפת צמות ראשיות',
-  'החלפת צמות מנוע',
-  'תיקוני מנוע וחיווט',
-  'הרכבות ותיקונים כלליים',
-  'הרכבת כל סוגי הצמיגים',
-  'תחזוקה שוטפת וטיפולים מקצועיים',
+  { title: 'אבחון תקלות מקצועי ומדויק', icon: Icons.ServiceSearch, tone: 'teal' },
+  { title: 'תיקוני חשמל ותקלות מורכבות', icon: Icons.Electric, tone: 'coral' },
+  { title: 'חילוץ ברגים תקועים / שבורים', icon: Icons.ServiceScrewdriver, tone: 'muted' },
+  { title: 'הלחמות מקצועיות', icon: Icons.ServiceFlame, tone: 'coral' },
+  { title: 'החלפת צמות ראשיות', icon: Icons.ServiceChain, tone: 'teal' },
+  { title: 'החלפת צמות מנוע', icon: Icons.ServiceGear, tone: 'muted' },
+  { title: 'תיקוני מנוע וחיווט', icon: Icons.ServiceEngineWire, tone: 'coral' },
+  { title: 'הרכבות ותיקונים כלליים', icon: Icons.ServiceHammer, tone: 'teal' },
+  { title: 'הרכבת כל סוגי הצמיגים', icon: Icons.ServiceTire, tone: 'muted' },
+  { title: 'תחזוקה שוטפת וטיפולים מקצועיים', icon: Icons.ServiceMaintenance, tone: 'teal' },
 ];
 
-const whyUsList = [
-  'ניסיון וידע מקצועי בתחום הכלים החשמליים',
-  'התמחות בתקלות מורכבות ותיקוני חשמל',
-  'שירות מקצועי לקורקינטים, אופניים חשמליים, טרקטורונים וקלנועיות',
-  'התמחות באופניים חשמליים מכל הסוגים',
-  'עבודה יסודית, מדויקת ואמינה',
-  'שירות מהיר, מקצועי ואישי',
-  'פתרונות ללקוחות פרטיים ולעסקים',
+const aboutCards = [
+  {
+    title: 'מעל עשור בתחום',
+    body: 'שמי ישראל, ואני חי, נושם ומתקן כלים חשמליים כבר למעלה מעשור.',
+    icon: Icons.WhyUsAward,
+    iconVariant: 'teal',
+  },
+  {
+    title: 'מומחיות במערכות וחשמל',
+    body: 'ב-10 השנים האחרונות צברתי ניסיון מעשי עשיר בכל סוגי המערכות, המנועים והבקרים הקיימים בשוק, תוך התמחות בפתרון תקלות החשמל המורכבות ביותר שלרוב נשארות ללא מענה.',
+    icon: Icons.ServiceEngineWire,
+    iconVariant: 'coral',
+  },
+  {
+    title: 'שירות מקצועי ומסור',
+    body: 'במשך שנים ארוכות הענקתי שירות מקצועי לקהל לקוחות סגור ולמי שהגיע אליי מפה לאוזן.',
+    icon: Icons.WhyUsUsers,
+    iconVariant: 'teal',
+  },
+  {
+    title: 'פתיחה לעסקים וללקוחות',
+    body: 'עם הזמן, זיהיתי את המצוקה ההולכת וגוברת בשוק: בעלי חנויות שקורסים תחת העומס במעבדה, ולקוחות שמחפשים ידיים מקצועיות באמת. לכן, החלטתי להרחיב את הפעילות, לפתוח את הדלתות, ולהעמיד את השירות, הידע והסטנדרטים המחמירים שלי לרשות כלל העסקים והלקוחות הפרטיים הזקוקים לפתרון אמיתי, אמין ומהיר.',
+    icon: Icons.Wrench,
+    iconVariant: 'coral',
+  },
 ];
 
-const specializations = [
-  { title: 'קורקינטים חשמליים', icon: Icons.Scooter },
-  { title: 'אופניים חשמליים מכל הסוגים', icon: Icons.Bike },
-  { title: 'טרקטורונים חשמליים', icon: Icons.ATV },
-  { title: 'קלנועיות', icon: Icons.Mobility },
+/** גיבוי: קבצים ב-public/images/ (נתיב מוחלט מהשורש האתר). עדיפות: קבצים ב-src/assets/gallery/ */
+const galleryFallbackPublic = [
+  { src: '/images/work-01.jpg', alt: 'תיקון קורקינט חשמלי — אבחון ותיקון במעבדה' },
+  { src: '/images/work-02.jpg', alt: 'תיקון אופניים חשמליים — מערכת חשמל בכלי רכיב' },
+  { src: '/images/work-03.jpg', alt: 'תיקון מנוע והילוך לקורקינט או אופניים חשמליים' },
+  { src: '/images/work-04.jpg', alt: 'הלחמה וחיווט מקצועי לכלים חשמליים' },
+  { src: '/images/work-05.jpg', alt: 'הרכבה והחלפת רכיב — שירות טכנאי קורקינטים' },
+  { src: '/images/work-06.jpg', alt: 'תיעוד עבודות שטח ומעבדה — תיקון כלים חשמליים' },
 ];
+const workGalleryPhotos =
+  galleryFromBundled.length > 0 ? galleryFromBundled : galleryFallbackPublic;
+
+const whyUsItems = [
+  { text: 'ניסיון וידע מקצועי בתחום הכלים החשמליים', Icon: Icons.WhyUsAward, accent: 'teal' },
+  { text: 'התמחות בתקלות מורכבות ותיקוני חשמל', Icon: Icons.ServiceEngineWire, accent: 'coral' },
+  { text: 'שירות מקצועי לקורקינטים, אופניים חשמליים, טרקטורונים וקלנועיות', kind: 'fleet', accent: 'teal' },
+  { text: 'התמחות באופניים חשמליים מכל הסוגים', Icon: Icons.Bike, accent: 'coral' },
+  { text: 'עבודה יסודית, מדויקת ואמינה', Icon: Icons.ServiceGear, accent: 'teal' },
+  { text: 'שירות מהיר, מקצועי ואישי', Icon: Icons.WhyUsTimer, accent: 'coral' },
+  { text: 'פתרונות ללקוחות פרטיים ולעסקים', Icon: Icons.WhyUsUsers, accent: 'teal' },
+];
+
+const accentWhyUsIcon = {
+  teal: 'bg-gradient-to-br from-[#78BCC4] to-[#4a9aa3] text-[#002C3E] shadow-lg shadow-[#78BCC4]/20',
+  coral: 'bg-gradient-to-br from-[#F7444E] to-[#c9363f] text-white shadow-lg shadow-[#F7444E]/25',
+};
+
+function WhyUsFleetGlyph({ className }) {
+  return (
+    <div className={`grid grid-cols-2 gap-0.5 place-items-center text-current ${className || ''}`}>
+      <Icons.Scooter className="w-[17px] h-[17px] md:w-[19px] md:h-[19px]" />
+      <Icons.Bike className="w-[17px] h-[17px] md:w-[19px] md:h-[19px]" />
+      <Icons.ATV className="w-[17px] h-[17px] md:w-[19px] md:h-[19px]" />
+      <Icons.Mobility className="w-[17px] h-[17px] md:w-[19px] md:h-[19px]" />
+    </div>
+  );
+}
 
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const whyUsRef = useRef(null);
+  const [whyUsInView, setWhyUsInView] = useState(false);
 
   useEffect(() => {
     document.documentElement.dir = 'rtl';
@@ -49,10 +130,37 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-white text-[#002C3E] font-sans selection:bg-[#78BCC4]/30 overflow-x-hidden">
+  useEffect(() => {
+    const el = whyUsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setWhyUsInView(true);
+          obs.unobserve(el);
+        }
+      },
+      { threshold: 0.06, rootMargin: '0px 0px -4% 0px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-      {/* --- כפתורים צפים --- */}
+  const brandMarqueeItems = [
+    { kind: 'brand', label: 'TEVERUN' },
+    { kind: 'sep' },
+    { kind: 'brand', label: 'NAMI' },
+    { kind: 'sep' },
+    { kind: 'brand', label: 'INOKIM' },
+    { kind: 'sep' },
+  ];
+  const doubledBrandMarqueeItems = [...brandMarqueeItems, ...brandMarqueeItems];
+
+  return (
+    <>
+      <SeoHead />
+
+      {/* --- כפתורים צפים (מחוץ ל־#site-content) --- */}
       <a
         href="https://wa.me/972501234567"
         target="_blank"
@@ -65,11 +173,13 @@ export default function App() {
 
       <a
         href="tel:0501234567"
-        className="fixed bottom-5 right-5 z-[100] bg-[#F7444E] text-white p-3.5 rounded-full shadow-lg coral-glow flex items-center justify-center transition-colors"
+        className="fixed bottom-5 right-5 z-[100] bg-[#F7444E] hover:bg-[#de3d46] text-white p-3.5 rounded-full shadow-lg coral-glow flex items-center justify-center transition-colors"
         title="חייגו עכשיו"
       >
         <Icons.Phone className="w-6 h-6" />
       </a>
+
+      <AccessibilityMenu stackAboveWhatsApp />
 
       {/* --- Header --- */}
       <header
@@ -90,13 +200,14 @@ export default function App() {
               <span className="text-xl md:text-2xl font-black text-[#002C3E] tracking-tight">
                 E-TECH<span className="text-[#F7444E]">.</span>
               </span>
-              <span className="text-[10px] md:text-xs font-bold text-[#78BCC4] uppercase tracking-widest">
+              <span className="text-[10px] md:text-xs font-bold text-[#4a9aa3] uppercase tracking-widest">
                 טכנאי מקצועי
               </span>
             </div>
           </div>
-          <nav className="hidden lg:flex gap-8 font-semibold text-[#002C3E]/70">
-            <a href="#specializations" className="hover:text-[#002C3E] transition-colors">תחומי התמחות</a>
+          <nav className="hidden lg:flex gap-8 font-semibold text-[#002C3E]/70" aria-label="ניווט ראשי">
+            <a href="#about" className="hover:text-[#002C3E] transition-colors">נעים להכיר</a>
+            <a href="#gallery" className="hover:text-[#002C3E] transition-colors">מהשטח</a>
             <a href="#services" className="hover:text-[#002C3E] transition-colors">השירותים שלנו</a>
             <a href="#audiences" className="hover:text-[#002C3E] transition-colors">פרטיים ועסקים</a>
             <a href="#why-us" className="hover:text-[#002C3E] transition-colors">למה לבחור בנו?</a>
@@ -132,7 +243,8 @@ export default function App() {
         >
           <div className="px-5 pb-5 pt-3 flex flex-col gap-1 border-t-2 border-[#78BCC4]/40">
             {[
-              { href: '#specializations', label: 'תחומי התמחות' },
+              { href: '#about', label: 'נעים להכיר' },
+              { href: '#gallery', label: 'מהשטח' },
               { href: '#services', label: 'השירותים שלנו' },
               { href: '#audiences', label: 'פרטיים ועסקים' },
               { href: '#why-us', label: 'למה לבחור בנו?' },
@@ -157,8 +269,15 @@ export default function App() {
         </div>
       </header>
 
+      <main
+        id="site-content"
+        className="min-h-screen bg-white text-[#002C3E] font-sans selection:bg-[#78BCC4]/30 overflow-x-hidden"
+      >
       {/* --- Hero --- */}
-      <section className="relative pt-36 pb-16 md:pt-48 md:pb-32 overflow-hidden min-h-[600px]">
+      <section
+        className="relative pt-36 pb-16 md:pt-48 md:pb-32 overflow-hidden min-h-[600px] bg-[#002C3E]"
+        aria-labelledby="hero-title"
+      >
         {/* Video background */}
         <video
           src="/יצירת_סרטון_ללא_מוזיקה.mp4"
@@ -166,7 +285,9 @@ export default function App() {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover z-0 hidden md:block"
+          aria-hidden="true"
         />
         {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-[#002C3E]/60 z-[1]" />
@@ -178,13 +299,17 @@ export default function App() {
               טכנאי מקצועי לכלים חשמליים
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.15] mb-6 md:mb-8 tracking-tight">
+            <h1
+              id="hero-title"
+              className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.15] mb-6 md:mb-8 tracking-tight"
+            >
               תיקון, אבחון ותחזוקה <br className="hidden md:block" />
               <span className="wow-underline inline-block mt-2 md:mt-3">לכל סוגי הכלים החשמליים</span>
             </h1>
 
             <p className="text-lg sm:text-xl md:text-2xl text-white/80 mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed font-normal">
-              עם התמחות בתקלות מורכבות, מערכות חשמל, מנועים, צמות, הלחמות והרכבות מקצועיות.
+              טכנאי קורקינטים חשמליים ואופניים חשמליים בישראל — אבחון מקצועי, תיקון סוללות ומנועים, צמות, חשמל
+              והרכבות. שירות לפרטיים ולעסקים.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
@@ -214,69 +339,114 @@ export default function App() {
         </div>
       </section>
 
-      {/* --- Marquee --- */}
-      <div className="bg-[#78BCC4] text-[#002C3E] py-4 overflow-hidden border-y border-[#002C3E]/10">
-        <div className="animate-marquee whitespace-nowrap flex items-center w-max">
-          {[...Array(4)].map((_, i) => (
-            <React.Fragment key={i}>
-              <span className="text-2xl md:text-3xl font-black tracking-widest mx-8 md:mx-16">TEVERUN</span>
-              <span className="text-lg text-white">✦</span>
-              <span className="text-2xl md:text-3xl font-black tracking-widest mx-8 md:mx-16">NAMI</span>
-              <span className="text-lg text-white">✦</span>
-              <span className="text-2xl md:text-3xl font-black tracking-widest mx-8 md:mx-16">INOKIM</span>
-              <span className="text-lg text-white">✦</span>
-            </React.Fragment>
-          ))}
+      {/* --- Marquee: שכפול מערך + translateX -50% ב-CSS --- */}
+      <section
+        className="bg-[#78BCC4] text-[#002C3E] py-4 overflow-hidden border-y border-[#002C3E]/10"
+        aria-label="מותגי ציוד נתמכים"
+      >
+        <div className="animate-marquee whitespace-nowrap flex flex-nowrap items-center w-max" dir="ltr">
+          {doubledBrandMarqueeItems.map((item, i) =>
+            item.kind === 'brand' ? (
+              <span
+                key={`brand-${i}`}
+                className="text-2xl md:text-3xl font-black tracking-widest mx-8 md:mx-16 shrink-0"
+              >
+                {item.label}
+              </span>
+            ) : (
+              <span key={`sep-${i}`} className="text-lg text-white shrink-0" aria-hidden>
+                ✦
+              </span>
+            )
+          )}
         </div>
-      </div>
+      </section>
 
-      {/* --- תחומי התמחות --- */}
-      <AnimatedSection id="specializations" className="bg-[#F7F8F3]">
+      {/* --- נעים להכיר --- */}
+      <AnimatedSection id="about" className="bg-[#F7F8F3]">
         <div className="container mx-auto px-5 md:px-6">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-[#002C3E] mb-4 md:mb-6">תחומי התמחות</h2>
+          <div className="text-center mb-10 md:mb-12">
+            <h2 className="text-3xl md:text-5xl font-black text-[#002C3E] mb-4 md:mb-6">נעים להכיר, ישראל</h2>
             <div className="w-16 h-1 bg-[#F7444E] mx-auto rounded-full" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {specializations.map((spec, i) => (
-              <div
-                key={i}
-                className="bg-white p-8 md:p-10 rounded-2xl flex flex-col items-center text-center group cursor-pointer transition-all duration-300 hover:shadow-md border border-[#002C3E]/5 hover:border-[#F7444E]/20"
-              >
-                <div className="w-16 h-16 bg-[#F7F8F3] text-[#002C3E] rounded-xl flex items-center justify-center mb-5 transition-colors duration-300 group-hover:bg-[#78BCC4] group-hover:text-white">
-                  <spec.icon className="w-8 h-8" />
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+            {aboutCards.map((card, i) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl border border-[#002C3E]/5 p-6 md:p-8 shadow-sm flex items-start gap-4 text-right"
+                >
+                  <div
+                    className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${serviceToneClass[card.iconVariant]}`}
+                  >
+                    <Icon className="w-7 h-7" aria-hidden />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg md:text-xl font-bold text-[#002C3E] mb-2 leading-snug">{card.title}</h3>
+                    <p className="text-base md:text-lg text-[#002C3E]/80 font-medium leading-relaxed">{card.body}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg md:text-xl font-bold leading-tight text-[#002C3E]">{spec.title}</h3>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </AnimatedSection>
 
+      {/* --- גלריית עבודות (מרקיז) --- */}
+      <AnimatedSection id="gallery" className="bg-white overflow-hidden" aria-labelledby="gallery-heading">
+        <div className="container mx-auto px-5 md:px-6">
+          <div className="text-center mb-8 md:mb-10">
+            <h2 id="gallery-heading" className="text-3xl md:text-5xl font-black text-[#002C3E] mb-4 md:mb-6">
+              מהשטח — צילומי עבודה
+            </h2>
+            <p className="text-[#78BCC4] text-lg md:text-xl font-medium mb-4 md:mb-6">תיעוד מקצועי מתוך המעבדה והשטח</p>
+            <div className="w-16 h-1 bg-[#F7444E] mx-auto rounded-full" />
+          </div>
+        </div>
+        {workGalleryPhotos.length > 0 ? <WorkGalleryCards photos={workGalleryPhotos} /> : null}
+        {galleryFromBundled.length === 0 ? (
+          <p className="text-center text-[#002C3E]/70 font-medium text-sm md:text-base px-6 pb-10 max-w-2xl mx-auto leading-relaxed">
+            כדי שהתמונות יוצגו: שימו קבצי jpg, jpeg, png או webp בתיקייה{' '}
+            <span className="font-mono bg-[#F7F8F3] px-1.5 py-0.5 rounded text-[#002C3E]">images</span>
+            {' '}בשורש הפרויקט או ב־
+            <span className="font-mono bg-[#F7F8F3] px-1.5 py-0.5 rounded text-[#002C3E]">src/assets/gallery</span>
+            {' '}(נטענות אוטומטית בבילד), או ב־
+            <span className="font-mono bg-[#F7F8F3] px-1.5 py-0.5 rounded text-[#002C3E]">public/images</span>
+            {' '}בשמות work-01.jpg עד work-06.jpg.
+          </p>
+        ) : null}
+      </AnimatedSection>
+
       {/* --- שירותים --- */}
-      <AnimatedSection id="services" className="bg-[#002C3E] text-white">
+      <AnimatedSection id="services" className="bg-[#002C3E] text-white" aria-labelledby="services-heading">
         <div className="container mx-auto px-5 md:px-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-16 gap-4 border-b border-white/10 pb-6 md:pb-8">
             <div>
-              <h2 className="text-3xl md:text-5xl font-black mb-3">השירותים שלנו</h2>
+              <h2 id="services-heading" className="text-3xl md:text-5xl font-black mb-3">
+                השירותים שלנו
+              </h2>
               <p className="text-[#78BCC4] text-lg md:text-xl font-medium">מעטפת תיקונים מושלמת לכל כלי</p>
             </div>
-            <Icons.Settings className="w-10 h-10 text-white/10 hidden md:block" />
+            <Icons.Settings className="w-10 h-10 text-white/10 hidden md:block" aria-hidden="true" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {servicesList.map((service, i) => (
-              <div
-                key={i}
-                className={`bg-white/5 border border-white/5 p-5 md:p-6 rounded-xl hover:bg-[#78BCC4]/5 hover:border-[#F7444E]/30 transition-all duration-300 flex items-start gap-4 ${
-                  i === 0 || i === 6 ? 'md:col-span-2 lg:col-span-2' : ''
-                }`}
-              >
-                <div className="w-8 h-8 rounded-md bg-[#78BCC4] flex items-center justify-center text-[#002C3E] shrink-0 mt-0.5">
-                  <Icons.Check className="w-5 h-5" />
+            {servicesList.map((service, i) => {
+              const Icon = service.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-white/5 border border-white/5 p-5 md:p-6 rounded-xl hover:bg-[#78BCC4]/5 hover:border-[#F7444E]/30 transition-all duration-300 flex items-start gap-4"
+                >
+                  <div
+                    className={`w-9 h-9 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${serviceToneClass[service.tone]}`}
+                  >
+                    <Icon className="w-5 h-5" aria-hidden />
+                  </div>
+                  <h3 className="text-base md:text-lg font-semibold leading-snug">{service.title}</h3>
                 </div>
-                <h3 className="text-base md:text-lg font-semibold leading-snug">{service}</h3>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </AnimatedSection>
@@ -320,20 +490,62 @@ export default function App() {
       {/* --- למה אנחנו --- */}
       <AnimatedSection id="why-us" className="bg-[#F7F8F3]">
         <div className="container mx-auto px-5 md:px-6">
-          <div className="bg-[#002C3E] rounded-2xl md:rounded-3xl p-8 md:p-16 shadow-lg relative overflow-hidden">
-            <Icons.Electric className="absolute -left-10 -bottom-10 w-64 h-64 text-[#78BCC4] opacity-5 rotate-12 pointer-events-none" />
+          <div
+            ref={whyUsRef}
+            className="bg-[#002C3E] rounded-2xl md:rounded-3xl p-8 md:p-16 shadow-lg relative overflow-hidden"
+          >
+            <Icons.Electric className="absolute -left-10 -bottom-10 w-64 h-64 text-[#78BCC4] opacity-[0.06] rotate-12 pointer-events-none why-us-deco-float" />
+            <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-[#78BCC4]/[0.07] blur-3xl pointer-events-none" />
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(circle_at_70%_20%,#78BCC4,transparent_55%)]" />
+
             <div className="relative z-10 max-w-3xl">
-              <h2 className="text-3xl md:text-5xl font-black text-white mb-8 md:mb-10">למה לבחור בנו?</h2>
-              <div className="space-y-4 md:space-y-5">
-                {whyUsList.map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 md:gap-4">
-                    <div className="bg-white/10 text-[#78BCC4] p-1 rounded shrink-0 mt-1">
-                      <Icons.Check className="w-4 h-4 md:w-5 md:h-5" />
-                    </div>
-                    <p className="text-base md:text-lg font-medium text-white/90 leading-snug">{item}</p>
-                  </div>
-                ))}
+              <div
+                className={`mb-8 md:mb-10 transition-all duration-700 ease-out ${
+                  whyUsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
+              >
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">למה לבחור בנו?</h2>
+                <div
+                  className={`mt-4 h-1.5 rounded-full bg-gradient-to-l from-[#78BCC4] to-transparent origin-right transition-all duration-700 ease-out ${
+                    whyUsInView ? 'w-28 md:w-36 opacity-100' : 'w-0 opacity-0'
+                  }`}
+                  style={{ transitionDelay: whyUsInView ? '120ms' : '0ms' }}
+                />
               </div>
+
+              <ul className="flex flex-col gap-3 md:gap-4 list-none p-0 m-0">
+                {whyUsItems.map((item, i) => {
+                  const rowDelay = 90 + i * 95;
+                  const iconDelay = 115 + i * 95;
+                  const IconComp = item.Icon;
+                  return (
+                    <li
+                      key={i}
+                      className={`group flex items-center gap-4 md:gap-5 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-[8px] px-4 py-3.5 md:px-5 md:py-4 transition-all duration-300 ease-out hover:border-[#78BCC4]/40 hover:bg-white/[0.08] hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/25 ${
+                        whyUsInView ? 'why-us-row-animate' : 'opacity-0'
+                      }`}
+                      style={whyUsInView ? { animationDelay: `${rowDelay}ms` } : undefined}
+                    >
+                      <div
+                        className={`relative shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105 ${
+                          accentWhyUsIcon[item.accent]
+                        } ${whyUsInView ? 'why-us-icon-animate' : 'opacity-0'}`}
+                        style={whyUsInView ? { animationDelay: `${iconDelay}ms` } : undefined}
+                      >
+                        <span className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {item.kind === 'fleet' ? (
+                          <WhyUsFleetGlyph className="relative z-[1]" />
+                        ) : (
+                          <IconComp className="w-7 h-7 md:w-8 md:h-8 relative z-[1]" />
+                        )}
+                      </div>
+                      <p className="text-base md:text-lg font-semibold text-white leading-snug flex-1 min-w-0">
+                        {item.text}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </div>
         </div>
@@ -346,7 +558,7 @@ export default function App() {
           <p className="text-lg md:text-xl text-[#002C3E]/80 font-semibold mb-8">
             שירות מקצועי, אמין ומהיר לכל סוגי הכלים החשמליים
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 mb-10 text-[#002C3E]/60 font-medium text-sm md:text-base">
+          <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 mb-10 text-[#002C3E]/80 font-medium text-sm md:text-base">
             <span>קורקינטים</span><span className="text-[#002C3E]/20">|</span>
             <span>אופניים חשמליים</span><span className="text-[#002C3E]/20">|</span>
             <span>טרקטורונים</span><span className="text-[#002C3E]/20">|</span>
@@ -354,7 +566,7 @@ export default function App() {
           </div>
           <div className="bg-[#F7F8F3] p-6 md:p-10 rounded-2xl border border-[#002C3E]/5 shadow-sm inline-block w-full text-center">
             <p className="text-lg md:text-xl font-bold text-[#002C3E] mb-1 md:mb-2">נשמח לעמוד לשירותכם</p>
-            <p className="text-sm md:text-base text-[#002C3E]/60 mb-6 md:mb-8">השאירו פרטים ונחזור אליכם בהקדם</p>
+            <p className="text-sm md:text-base text-[#002C3E]/80 mb-6 md:mb-8">השאירו פרטים ונחזור אליכם בהקדם</p>
             <ContactForm />
           </div>
         </div>
@@ -367,15 +579,21 @@ export default function App() {
             <div className="w-8 h-8 bg-[#002C3E] rounded-md flex items-center justify-center text-[#78BCC4]">
               <Icons.Electric className="w-4 h-4" />
             </div>
-            <span className="text-lg font-black tracking-tight text-[#002C3E]">
+            <span className="font-display text-lg font-black tracking-tight text-[#002C3E]">
               E-TECH<span className="text-[#F7444E]">.</span>
             </span>
           </div>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs md:text-sm font-medium">
+            <Link to="/terms" className="hover:text-[#002C3E] transition-colors">תנאי שימוש</Link>
+            <Link to="/privacy" className="hover:text-[#002C3E] transition-colors">פרטיות</Link>
+            <Link to="/accessibility" className="hover:text-[#002C3E] transition-colors">נגישות</Link>
+          </div>
           <div className="text-center md:text-right font-medium text-xs md:text-sm">
-            © {new Date().getFullYear()} טכנאי מקצועי לכלים חשמליים. כל הזכויות שמורות.
+            © {new Date().getFullYear()} E-TECH · טכנאי אומן לכלים חשמליים
           </div>
         </div>
       </footer>
-    </div>
+      </main>
+    </>
   );
 }

@@ -7,29 +7,6 @@
   font-family: 'Assistant', sans-serif;
 }
 
-/* ===== כפתורים ===== */
-.glow-button {
-  box-shadow: 0 4px 14px 0 rgba(0, 44, 62, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.glow-button:hover {
-  box-shadow: 0 6px 20px rgba(0, 44, 62, 0.2);
-  transform: translateY(-2px);
-}
-
-/* ===== כרטיסים ===== */
-.glass-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 44, 62, 0.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: all 0.4s ease;
-}
-.glass-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(120, 188, 196, 0.1);
-  border-color: rgba(120, 188, 196, 0.3);
-}
-
 /* ===== קו קישוט תחת כותרת ===== */
 .wow-underline {
   position: relative;
@@ -62,9 +39,78 @@
 /* ===== מרקיז ===== */
 @keyframes marquee {
   0%   { transform: translateX(0%); }
-  100% { transform: translateX(100%); }
+  100% { transform: translateX(-50%); }
 }
 .animate-marquee {
-  display: inline-block;
+  display: flex;
+  width: max-content;
   animation: marquee 40s linear infinite;
+}
+
+
+/* ===== למה לבחור בנו — אנימציות (לא לשלב עם Tailwind opacity-0 על אותו אלמנט) ===== */
+@keyframes why-us-row {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes why-us-icon {
+  0% {
+    opacity: 0;
+    transform: scale(0.65) rotate(-8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+@keyframes why-us-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.why-us-row-animate {
+  animation: why-us-row 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.why-us-icon-animate {
+  animation: why-us-icon 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.why-us-deco-float {
+  animation: why-us-float 5s ease-in-out infinite;
+}
+
+/* ===== תפריט נגישות — מסננים על #site-content בלבד (לא על body / אלמנטים קבועים) ===== */
+#site-content.a11y-grayscale {
+  filter: grayscale(100%);
+}
+#site-content.a11y-high-contrast {
+  filter: contrast(1.35) brightness(1.06);
+}
+#site-content.a11y-grayscale.a11y-high-contrast {
+  filter: grayscale(100%) contrast(1.35) brightness(1.06);
+}
+
+#site-content.a11y-readable-font,
+#site-content.a11y-readable-font * {
+  font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+#site-content.a11y-links-highlight a {
+  outline: 3px solid currentColor !important;
+  outline-offset: 2px;
+  background-color: rgba(255, 235, 59, 0.35) !important;
+  text-decoration: underline !important;
+}
+
+.a11y-fab-button {
+  forced-color-adjust: none;
 }

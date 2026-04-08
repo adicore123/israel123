@@ -1,0 +1,5 @@
+# עדכן את שורת ה-Sitemap לכתובת הדומיין האמיתי שלך (כולל https://)
+User-agent: *
+Allow: /
+
+Sitemap: https://www.example.com/sitemap.xml

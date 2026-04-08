@@ -20,7 +20,7 @@ const useIntersectionObserver = (options) => {
   return [ref, isVisible];
 };
 
-const AnimatedSection = ({ children, className, id, delay = 0 }) => {
+const AnimatedSection = ({ children, className, id, delay = 0, ...rest }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
   return (
     <section
@@ -30,6 +30,7 @@ const AnimatedSection = ({ children, className, id, delay = 0 }) => {
       className={`py-16 md:py-32 transition-all duration-1000 ease-out transform ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       } ${className || ''}`}
+      {...rest}
     >
       {children}
     </section>
