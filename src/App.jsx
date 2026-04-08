@@ -280,13 +280,13 @@ export default function App() {
       >
         {/* Video background */}
         <video
-          src="/יצירת_סרטון_ללא_מוזיקה.mp4"
+          src="/hero.mp4"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover z-0 hidden md:block"
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover z-0"
           aria-hidden="true"
         />
         {/* Dark overlay for readability */}
