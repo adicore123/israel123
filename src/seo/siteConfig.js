@@ -11,6 +11,12 @@ export const BUSINESS_LEGAL_NAME = 'E-TECH — טכנאי מקצועי לכלי�
 /** E.164 לשימוש ב-schema ולקישורי טלפון */
 export const BUSINESS_PHONE_E164 = '+972545050609';
 
+export const SEO_OG_TITLE =
+  'תיקון אופניים חשמליים וקורקינטים | טכנאי מומחה בישראל | E-TECH';
+
+export const SEO_OG_DESCRIPTION =
+  'טכנאי מומחה לתיקון אופניים חשמליים, קורקינטים חשמליים, טרקטורונים וקלנועיות. אבחון מקצועי, תיקוני חשמל ומנוע, שירות מהיר ואמין. חייג עכשיו!';
+
 export const SEO_HOME_TITLE =
   'E-TECH | טכנאי קורקינטים ואופניים חשמליים | תיקון ואבחון בישראל';
 
