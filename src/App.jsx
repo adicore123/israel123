@@ -265,8 +265,8 @@ export default function App() {
               id="hero-title"
               className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.15] mb-6 md:mb-8 tracking-tight"
             >
-              תיקון, אבחון ותחזוקה <br className="hidden md:block" />
-              <span className="wow-underline inline-block mt-2 md:mt-3">לכל סוגי הכלים החשמליים</span>
+              תיקון אופניים חשמליים וקורקינטים <br className="hidden md:block" />
+              <span className="wow-underline inline-block mt-2 md:mt-3">אבחון מקצועי ותחזוקה</span>
             </h1>
 
             <p className="text-lg sm:text-xl md:text-2xl text-white/80 mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed font-normal">
@@ -383,6 +383,11 @@ export default function App() {
             </div>
             <Icons.Settings className="w-10 h-10 text-white/10 hidden md:block" aria-hidden="true" />
           </div>
+          <p className="text-white/70 text-base md:text-lg leading-relaxed mb-8 max-w-3xl">
+            אנחנו מתמחים באבחון ותיקון של קורקינטים חשמליים, אופניים חשמליים, טרקטורונים וקלנועיות.
+            מעבדת התיקונים שלנו מצוידת בציוד מתקדם לאבחון תקלות חשמל, מנוע, סוללה ומערכות שליטה.
+            כל תיקון מבוצע באחריות מלאה תוך שימוש בחלקי חילוף איכותיים.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {servicesList.map((service, i) => {
               const Icon = service.icon;
