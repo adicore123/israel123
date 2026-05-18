@@ -75,7 +75,7 @@ const ContactForm = () => {
         <input
           required
           type="text"
-          placeholder="ישראל כהן"
+          placeholder=""
           value={form.fullName}
           onChange={set('fullName')}
           className={inputClass('fullName')}

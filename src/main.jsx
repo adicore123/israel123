@@ -6,6 +6,7 @@ import App from './App.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import AccessibilityPage from './pages/AccessibilityPage.jsx';
+import CatalogAdminPage from './pages/CatalogAdminPage.jsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/accessibility" element={<AccessibilityPage />} />
+          <Route path="/catalog" element={<CatalogAdminPage />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>
