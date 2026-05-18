@@ -178,12 +178,12 @@ export default function App() {
           </nav>
           <a
             href="#contact"
-            className="bg-[#002C3E] text-white px-6 py-2 rounded-full font-bold transition-all hover:bg-[#F7444E] hover:text-white shadow-sm text-sm hidden lg:block"
+            className="bg-[#002C3E] text-white px-4 md:px-6 py-2 rounded-full font-bold transition-all hover:bg-[#F7444E] hover:text-white shadow-sm text-xs md:text-sm whitespace-nowrap"
           >
             הזמנת שירות
           </a>
           <button
-            className="lg:hidden p-2 rounded-xl text-[#002C3E] hover:bg-[#F7F8F3] transition-colors"
+            className="p-2 rounded-xl text-[#002C3E] hover:bg-[#F7F8F3] transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="תפריט ניווט"
           >
