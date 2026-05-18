@@ -5,20 +5,20 @@
 const raw = import.meta.env.VITE_SITE_URL || 'https://www.example.com';
 export const SITE_URL = raw.replace(/\/$/, '');
 
-export const SITE_NAME = 'E-TECH';
-export const BUSINESS_LEGAL_NAME = 'E-TECH — טכנאי מקצועי לכלים חשמליים';
+export const SITE_NAME = 'israelfix';
+export const BUSINESS_LEGAL_NAME = 'israelfix — טכנאי מקצועי לכלים חשמליים';
 
 /** E.164 לשימוש ב-schema ולקישורי טלפון */
 export const BUSINESS_PHONE_E164 = '+972545050609';
 
 export const SEO_OG_TITLE =
-  'תיקון אופניים חשמליים וקורקינטים | טכנאי מומחה בישראל | E-TECH';
+  'תיקון אופניים חשמליים וקורקינטים | טכנאי מומחה בישראל | israelfix';
 
 export const SEO_OG_DESCRIPTION =
   'טכנאי מומחה לתיקון אופניים חשמליים, קורקינטים חשמליים, טרקטורונים וקלנועיות. אבחון מקצועי, תיקוני חשמל ומנוע, שירות מהיר ואמין. חייג עכשיו!';
 
 export const SEO_HOME_TITLE =
-  'תיקון אופניים חשמליים וקורקינטים | טכנאי מומחה | E-TECH ישראל';
+  'תיקון אופניים חשמליים וקורקינטים | טכנאי מומחה | israelfix ישראל';
 
 export const SEO_HOME_DESCRIPTION =
   'טכנאי קורקינטים חשמליים ותיקון אופניים חשמליים בישראל. אבחון מקצועי, החלפת סוללה לקורקינט, תיקון מנוע, צמות ותקלות חשמל. שירות לפרטיים ולעסקים — מרכז הארץ.';

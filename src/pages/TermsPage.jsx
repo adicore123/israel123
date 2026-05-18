@@ -25,7 +25,7 @@ export default function TermsPage() {
     <>
       <PageSeo
         title="תנאי שימוש"
-        description="תנאי השימוש באתר E-TECH — טכנאי קורקינטים ואופניים חשמליים בישראל."
+        description="תנאי השימוש באתר israelfix — טכנאי קורקינטים ואופניים חשמליים בישראל."
         path="/terms"
       />
       <AccessibilityMenu stackAboveWhatsApp={false} />
@@ -38,7 +38,7 @@ export default function TermsPage() {
               <Icons.Electric className="w-5 h-5" />
             </div>
             <span className="font-display text-xl font-black text-white tracking-tight">
-              E-TECH<span className="text-[#F7444E]">.</span>
+              israelfix<span className="text-[#F7444E]">.</span>
             </span>
           </Link>
           <Link
@@ -127,7 +127,7 @@ export default function TermsPage() {
       </main>
 
       <footer className="bg-white border-t border-[#002C3E]/5 py-6 text-center text-xs text-[#002C3E]/40 font-medium">
-        © {new Date().getFullYear()} E-TECH · טכנאי אומן לכלים חשמליים
+        © {new Date().getFullYear()} israelfix · טכנאי אומן לכלים חשמליים
       </footer>
       </div>
     </>
