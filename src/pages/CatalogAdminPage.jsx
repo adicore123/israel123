@@ -3,33 +3,13 @@ import { Link } from 'react-router-dom';
 import { Icons } from '../components/Icons.jsx';
 import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
 import PageSeo from '../components/PageSeo.jsx';
-import defaultCatalog from '../data/catalog.json';
+import { supabase } from '../lib/supabase.js';
 
-const STORAGE_KEY = 'israelfix_catalog';
 const HASH = '2dae8ae7c497683869fd69dce52fa6f4fa58f405cbfd5b4599c9676902eba6d2';
 
 async function sha256(msg) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-function loadCatalog() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return { enabled: false, products: [] };
-}
-
-function saveCatalog(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
-}
-
-function initFromDefault() {
-  const existing = loadCatalog();
-  if (existing.products.length === 0) {
-    saveCatalog(defaultCatalog);
-  }
 }
 
 function LoginForm({ onSuccess }) {
@@ -125,25 +105,47 @@ function ProductForm({ product, index, onChange, onRemove }) {
 }
 
 function AdminPanel() {
-  const [data, setData] = useState(() => {
-    initFromDefault();
-    return loadCatalog();
-  });
+  const [data, setData] = useState({ enabled: false, products: [] });
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from('catalog_data')
+      .select('enabled, products')
+      .eq('id', 1)
+      .single()
+      .then(({ data: row }) => {
+        if (row) setData(row);
+        setLoading(false);
+      });
+  }, []);
+
+  const saveToSupabase = async (next) => {
+    setSaveError(false);
+    const { error } = await supabase
+      .from('catalog_data')
+      .upsert({ id: 1, enabled: next.enabled, products: next.products, updated_at: new Date().toISOString() });
+    if (error) {
+      setSaveError(true);
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+  };
 
   const updateData = (patch) => {
     const next = { ...data, ...patch };
     setData(next);
-    saveCatalog(next);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    saveToSupabase(next);
   };
 
   const addProduct = () => {
     if (data.products.length >= 10) return;
     const next = { ...data, products: [...data.products, { name: '', image: '', price: '', description: '' }] };
     setData(next);
-    saveCatalog(next);
+    saveToSupabase(next);
   };
 
   const updateProduct = (index, product) => {
@@ -157,6 +159,19 @@ function AdminPanel() {
     updateData({ products });
   };
 
+  const refreshFromDB = () => {
+    setLoading(true);
+    supabase
+      .from('catalog_data')
+      .select('enabled, products')
+      .eq('id', 1)
+      .single()
+      .then(({ data: row }) => {
+        if (row) setData(row);
+        setLoading(false);
+      });
+  };
+
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -166,6 +181,18 @@ function AdminPanel() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-white/40 text-sm gap-3">
+        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+        טוען נתונים...
+      </div>
+    );
+  }
 
   return (
     <div className="text-white text-right space-y-6">
@@ -181,7 +208,10 @@ function AdminPanel() {
             <p className="text-white/40 text-xs">{data.products.length}/10 מוצרים</p>
           </div>
         </div>
-        {saved && <span className="text-[#06d6a0] text-xs font-bold">נשמר!</span>}
+        <div className="flex items-center gap-2">
+          {saved && <span className="text-[#06d6a0] text-xs font-bold">נשמר!</span>}
+          {saveError && <span className="text-[#F7444E] text-xs font-bold">שגיאת שמירה</span>}
+        </div>
       </div>
 
       <label className="flex items-center gap-3 cursor-pointer bg-white/5 border border-white/10 rounded-xl px-5 py-4">
@@ -221,7 +251,7 @@ function AdminPanel() {
 
       <div className="flex gap-3">
         <button
-          onClick={() => updateData(loadCatalog())}
+          onClick={refreshFromDB}
           className="flex-1 bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all"
         >
           רענן

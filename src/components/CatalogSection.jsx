@@ -1,17 +1,19 @@
-import defaultCatalog from '../data/catalog.json';
-
-const STORAGE_KEY = 'israelfix_catalog';
-
-function loadCatalog() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return defaultCatalog;
-}
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export default function CatalogSection() {
-  const data = loadCatalog();
+  const [data, setData] = useState({ enabled: false, products: [] });
+
+  useEffect(() => {
+    supabase
+      .from('catalog_data')
+      .select('enabled, products')
+      .eq('id', 1)
+      .single()
+      .then(({ data: row }) => {
+        if (row) setData(row);
+      });
+  }, []);
 
   if (!data.enabled || !data.products || data.products.length === 0) return null;
 
