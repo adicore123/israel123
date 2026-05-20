@@ -33,13 +33,13 @@ function LoginForm({ onSuccess }) {
   return (
     <form onSubmit={handleSubmit} className="max-w-sm mx-auto text-right">
       <div className="mb-6">
-        <label className="block text-sm font-bold text-[#78BCC4] mb-2">סיסמת מנהל קטלוג</label>
+        <label className="block text-sm font-bold text-[#2a8fa0] mb-2">סיסמת מנהל קטלוג</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="הזן סיסמה"
-          className="w-full bg-white/10 px-4 py-3.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-right text-sm"
+          className="w-full bg-[#F4F9FA] px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
           autoFocus
         />
       </div>
@@ -84,9 +84,9 @@ function ProductForm({ product, index, onChange, onRemove }) {
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-3">
+    <div className="bg-white border border-[#002C3E]/10 rounded-xl p-5 space-y-3 shadow-sm">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-white/50 text-xs font-bold">מוצר #{index + 1}</span>
+        <span className="text-[#002C3E]/40 text-xs font-bold">מוצר #{index + 1}</span>
         <button
           onClick={() => onRemove(index)}
           className="text-[#F7444E] hover:text-white hover:bg-[#F7444E] text-xs font-bold px-2.5 py-1 rounded-lg transition-all"
@@ -100,18 +100,18 @@ function ProductForm({ product, index, onChange, onRemove }) {
         value={product.name}
         onChange={set('name')}
         placeholder="שם המוצר"
-        className="w-full bg-white/10 px-4 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-right text-sm"
+        className="w-full bg-[#F4F9FA] px-4 py-2.5 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
       />
 
       {/* Image upload section */}
       <div className="space-y-2">
         {product.image && (
-          <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-white/5 border border-white/10">
+          <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#F4F9FA] border border-[#002C3E]/10">
             <img src={product.image} alt="תצוגה מקדימה" className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => onChange(index, { ...product, image: '' })}
-              className="absolute top-2 left-2 bg-black/60 hover:bg-[#F7444E] text-white w-6 h-6 rounded-full text-xs flex items-center justify-center transition-all font-bold"
+              className="absolute top-2 left-2 bg-black/50 hover:bg-[#F7444E] text-white w-6 h-6 rounded-full text-xs flex items-center justify-center transition-all font-bold"
               title="הסר תמונה"
             >
               ✕
@@ -124,7 +124,7 @@ function ProductForm({ product, index, onChange, onRemove }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadState.loading}
-            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap border border-white/10"
+            className="flex items-center gap-1.5 bg-[#EBF5F7] hover:bg-[#d8edf0] text-[#2a8fa0] text-xs font-bold px-3 py-2.5 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap border border-[#78BCC4]/30"
           >
             {uploadState.loading ? (
               <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ function ProductForm({ product, index, onChange, onRemove }) {
             value={product.image}
             onChange={set('image')}
             placeholder="או הכנס קישור URL"
-            className="flex-1 bg-white/10 px-3 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-xs"
+            className="flex-1 bg-[#F4F9FA] px-3 py-2.5 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-xs placeholder:text-[#002C3E]/35"
             dir="ltr"
           />
         </div>
@@ -166,14 +166,14 @@ function ProductForm({ product, index, onChange, onRemove }) {
         value={product.price}
         onChange={set('price')}
         placeholder='מחיר (לדוגמה: ₪150)'
-        className="w-full bg-white/10 px-4 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-right text-sm"
+        className="w-full bg-[#F4F9FA] px-4 py-2.5 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
       />
       <textarea
         rows={2}
         value={product.description}
         onChange={set('description')}
         placeholder="תיאור קצר (אופציונלי)"
-        className="w-full bg-white/10 px-4 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-right text-sm resize-none"
+        className="w-full bg-[#F4F9FA] px-4 py-2.5 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm resize-none placeholder:text-[#002C3E]/35"
       />
     </div>
   );
@@ -259,7 +259,7 @@ function AdminPanel() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-white/40 text-sm gap-3">
+      <div className="flex items-center justify-center py-16 text-[#002C3E]/40 text-sm gap-3">
         <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
@@ -270,7 +270,7 @@ function AdminPanel() {
   }
 
   return (
-    <div className="text-white text-right space-y-6">
+    <div className="text-[#002C3E] text-right space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-[#06d6a0] rounded-xl flex items-center justify-center">
@@ -279,8 +279,8 @@ function AdminPanel() {
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-black">ניהול קטלוג</h2>
-            <p className="text-white/40 text-xs">{data.products.length}/10 מוצרים</p>
+            <h2 className="text-lg font-black text-[#002C3E]">ניהול קטלוג</h2>
+            <p className="text-[#002C3E]/40 text-xs">{data.products.length}/10 מוצרים</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -289,7 +289,7 @@ function AdminPanel() {
         </div>
       </div>
 
-      <label className="flex items-center gap-3 cursor-pointer bg-white/5 border border-white/10 rounded-xl px-5 py-4">
+      <label className="flex items-center gap-3 cursor-pointer bg-[#F4F9FA] border border-[#002C3E]/10 rounded-xl px-5 py-4">
         <div className="relative">
           <input
             type="checkbox"
@@ -297,10 +297,10 @@ function AdminPanel() {
             onChange={(e) => updateData({ enabled: e.target.checked })}
             className="sr-only peer"
           />
-          <div className="w-10 h-5 bg-white/20 rounded-full peer-checked:bg-[#06d6a0] transition-colors" />
+          <div className="w-10 h-5 bg-[#002C3E]/15 rounded-full peer-checked:bg-[#06d6a0] transition-colors" />
           <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-[-20px] transition-transform" />
         </div>
-        <span className="text-sm font-bold">הצג קטלוג בעמוד הראשי</span>
+        <span className="text-sm font-bold text-[#002C3E]">הצג קטלוג בעמוד הראשי</span>
       </label>
 
       <div className="space-y-4">
@@ -318,7 +318,7 @@ function AdminPanel() {
       {data.products.length < 10 && (
         <button
           onClick={addProduct}
-          className="w-full border-2 border-dashed border-white/20 hover:border-[#78BCC4] text-white/50 hover:text-[#78BCC4] px-6 py-4 rounded-xl font-bold text-sm transition-all"
+          className="w-full border-2 border-dashed border-[#002C3E]/20 hover:border-[#78BCC4] text-[#002C3E]/40 hover:text-[#78BCC4] px-6 py-4 rounded-xl font-bold text-sm transition-all hover:bg-[#EBF5F7]"
         >
           + הוסף מוצר
         </button>
@@ -327,13 +327,13 @@ function AdminPanel() {
       <div className="flex gap-3">
         <button
           onClick={refreshFromDB}
-          className="flex-1 bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all"
+          className="flex-1 bg-[#002C3E]/8 hover:bg-[#002C3E]/15 text-[#002C3E] px-5 py-3 rounded-xl font-bold text-sm transition-all border border-[#002C3E]/10"
         >
           רענן
         </button>
         <button
           onClick={exportJson}
-          className="flex-1 bg-[#78BCC4] hover:bg-[#6aacb4] text-[#002C3E] px-5 py-3 rounded-xl font-bold text-sm transition-all"
+          className="flex-1 bg-[#78BCC4] hover:bg-[#6aacb4] text-white px-5 py-3 rounded-xl font-bold text-sm transition-all"
         >
           ייצוא JSON
         </button>
@@ -354,20 +354,20 @@ export default function CatalogAdminPage() {
     <>
       <PageSeo title="ניהול קטלוג" description="ניהול קטלוג מוצרים - israelfix" path="/catalog" />
       <AccessibilityMenu stackAboveWhatsApp={false} />
-      <div className="min-h-screen bg-[#002C3E] text-white font-sans">
-        <header className="bg-[#002C3E] border-b border-white/10 py-5">
+      <div className="min-h-screen bg-[#EEF6F8] text-[#002C3E] font-sans">
+        <header className="bg-white border-b border-[#002C3E]/10 py-5 shadow-sm">
           <div className="container mx-auto px-5 md:px-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#78BCC4]/20 border border-[#78BCC4]/40 rounded-xl flex items-center justify-center text-[#78BCC4]">
+              <div className="w-10 h-10 bg-[#78BCC4]/15 border border-[#78BCC4]/40 rounded-xl flex items-center justify-center text-[#78BCC4]">
                 <Icons.Electric className="w-5 h-5" />
               </div>
-              <span className="font-display text-xl font-black tracking-tight">
+              <span className="font-display text-xl font-black tracking-tight text-[#002C3E]">
                 israelfix<span className="text-[#F7444E]">.</span>
               </span>
             </div>
             <Link
               to="/"
-              className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm font-semibold"
+              className="flex items-center gap-2 text-[#002C3E]/50 hover:text-[#002C3E] transition-colors text-sm font-semibold"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7 7l-7-7 7-7" />
@@ -378,12 +378,12 @@ export default function CatalogAdminPage() {
         </header>
 
         <main className="container mx-auto px-5 md:px-6 py-12 max-w-xl">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+          <div className="bg-white border border-[#002C3E]/10 rounded-2xl p-6 md:p-8 shadow-sm">
             {authenticated ? <AdminPanel /> : <LoginForm onSuccess={() => setAuthenticated(true)} />}
           </div>
         </main>
 
-        <footer className="border-t border-white/5 py-6 text-center text-xs text-white/30 font-medium">
+        <footer className="border-t border-[#002C3E]/10 py-6 text-center text-xs text-[#002C3E]/30 font-medium">
           &copy; {new Date().getFullYear()} israelfix · ניהול קטלוג
         </footer>
       </div>
