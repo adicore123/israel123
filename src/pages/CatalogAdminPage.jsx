@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Icons } from '../components/Icons.jsx';
 import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
@@ -59,6 +59,29 @@ function LoginForm({ onSuccess }) {
 
 function ProductForm({ product, index, onChange, onRemove }) {
   const set = (field) => (e) => onChange(index, { ...product, [field]: e.target.value });
+  const [uploadState, setUploadState] = useState({ loading: false, error: null });
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadState({ loading: true, error: null });
+    const ext = file.name.split('.').pop().toLowerCase();
+    const fileName = `product-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from('catalog-images')
+      .upload(fileName, file, { upsert: true });
+    if (error) {
+      setUploadState({ loading: false, error: 'שגיאה בהעלאה, נסה שנית' });
+      return;
+    }
+    const { data: urlData } = supabase.storage
+      .from('catalog-images')
+      .getPublicUrl(fileName);
+    onChange(index, { ...product, image: urlData.publicUrl });
+    setUploadState({ loading: false, error: null });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-3">
@@ -71,6 +94,7 @@ function ProductForm({ product, index, onChange, onRemove }) {
           הסר
         </button>
       </div>
+
       <input
         type="text"
         value={product.name}
@@ -78,14 +102,65 @@ function ProductForm({ product, index, onChange, onRemove }) {
         placeholder="שם המוצר"
         className="w-full bg-white/10 px-4 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-right text-sm"
       />
-      <input
-        type="text"
-        value={product.image}
-        onChange={set('image')}
-        placeholder="לינק לתמונה (URL)"
-        className="w-full bg-white/10 px-4 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-right text-sm ltr:text-left"
-        dir="ltr"
-      />
+
+      {/* Image upload section */}
+      <div className="space-y-2">
+        {product.image && (
+          <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-white/5 border border-white/10">
+            <img src={product.image} alt="תצוגה מקדימה" className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={() => onChange(index, { ...product, image: '' })}
+              className="absolute top-2 left-2 bg-black/60 hover:bg-[#F7444E] text-white w-6 h-6 rounded-full text-xs flex items-center justify-center transition-all font-bold"
+              title="הסר תמונה"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadState.loading}
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap border border-white/10"
+          >
+            {uploadState.loading ? (
+              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            )}
+            {uploadState.loading ? 'מעלה...' : 'העלה תמונה'}
+          </button>
+          <input
+            type="text"
+            value={product.image}
+            onChange={set('image')}
+            placeholder="או הכנס קישור URL"
+            className="flex-1 bg-white/10 px-3 py-2.5 rounded-xl border border-white/20 outline-none focus:border-[#78BCC4] transition-all text-white text-xs"
+            dir="ltr"
+          />
+        </div>
+
+        {uploadState.error && (
+          <p className="text-[#F7444E] text-xs font-semibold">{uploadState.error}</p>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+      </div>
+
       <input
         type="text"
         value={product.price}
