@@ -1890,6 +1890,11 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
               </div>
             )}
 
+            {/* --- Footer --- */}
+            <footer className="border-t border-[#002C3E]/10 mt-8 py-6 text-center text-xs text-[#002C3E]/30 font-medium">
+              &copy; {new Date().getFullYear()} israelfix · ניהול קריאות שירות וסדר לטכנאי
+            </footer>
+
           </div>
         </main>
 
@@ -2314,10 +2319,6 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
           </div>
         )}
 
-        {/* --- Footer --- */}
-        <footer className="border-t border-[#002C3E]/10 py-6 text-center text-xs text-[#002C3E]/30 font-medium">
-          &copy; {new Date().getFullYear()} israelfix · ניהול קריאות שירות וסדר לטכנאי
-        </footer>
       </div>
     </>
   );
