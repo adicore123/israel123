@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PageSeo from '../components/PageSeo.jsx';
 import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
 import { supabase } from '../lib/supabase.js';
+import { FiClipboard, FiUsers, FiSettings, FiWifi, FiHome, FiLogOut, FiLock, FiDatabase, FiInfo, FiSearch, FiPhone, FiMapPin, FiTool, FiCheckCircle, FiPlus, FiEdit2, FiTrash2, FiActivity } from 'react-icons/fi';
 
 
 // סיסמת כניסה: admin123
@@ -800,7 +801,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-lg">📋</span>
+                  <FiClipboard className="text-lg" />
                   <span>קריאות שירות</span>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold transition-all duration-200 ${
@@ -819,7 +820,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-lg">👥</span>
+                  <FiUsers className="text-lg" />
                   <span>מאגר לקוחות</span>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold transition-all duration-200 ${
@@ -838,7 +839,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-lg">⚙️</span>
+                  <FiSettings className="text-lg" />
                   <span>הגדרות מערכת</span>
                 </div>
               </button>
@@ -866,14 +867,14 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 to="/"
                 className="w-full flex items-center justify-center gap-2 text-white/70 hover:text-white transition-all text-xs font-black bg-white/5 hover:bg-white/10 py-3 rounded-xl border border-white/5"
               >
-                <span>🏠 חזרה לאתר</span>
+                <FiHome className="text-lg" /><span>חזרה לאתר</span>
               </Link>
 
               <button
                 onClick={handleLogout}
                 className="w-full text-xs font-black text-white bg-[#F7444E]/90 hover:bg-[#F7444E] border border-white/10 py-3 rounded-xl transition-all shadow-md shadow-[#F7444E]/10"
               >
-                התנתק ✕
+                <span className="flex items-center justify-center gap-2">התנתק <FiLogOut /></span>
               </button>
             </div>
           </div>
@@ -949,7 +950,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span>📋</span>
+                  <FiClipboard className="text-xl" />
                   <span>קריאות שירות</span>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
@@ -971,7 +972,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span>👥</span>
+                  <FiUsers className="text-xl" />
                   <span>מאגר לקוחות</span>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
@@ -993,7 +994,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span>⚙️</span>
+                  <FiSettings className="text-xl" />
                   <span>הגדרות מערכת</span>
                 </div>
               </button>
@@ -1019,7 +1020,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 onClick={() => setIsMobileSidebarOpen(false)}
                 className="w-full flex items-center justify-center gap-2 text-white/70 hover:text-white transition-all text-xs font-black bg-white/5 py-2.5 rounded-xl border border-white/5"
               >
-                <span>🏠 חזרה לאתר</span>
+                <FiHome className="text-lg" /><span>חזרה לאתר</span>
               </Link>
 
               <button
@@ -1029,7 +1030,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 }}
                 className="w-full text-xs font-black text-white bg-[#F7444E]/90 hover:bg-[#F7444E] border border-white/10 py-2.5 rounded-xl transition-all shadow-md shadow-[#F7444E]/10"
               >
-                התנתק ✕
+                <span className="flex items-center justify-center gap-2">התנתק <FiLogOut /></span>
               </button>
             </div>
           </div>
@@ -1055,7 +1056,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                     {/* Security Card: Change Password */}
                     <div className="bg-white border border-[#002C3E]/5 rounded-3xl p-6 shadow-sm space-y-4">
                       <div className="flex items-center gap-3 border-b border-[#002C3E]/5 pb-3">
-                        <span className="text-xl">🔒</span>
+                        <FiLock className="text-xl" />
                         <h3 className="text-lg font-extrabold text-[#002C3E]">שינוי סיסמת גישה לטכנאי</h3>
                       </div>
 
@@ -1108,7 +1109,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                     <div className="bg-white border border-[#002C3E]/5 rounded-3xl p-6 shadow-sm space-y-4">
                       <div className="flex items-center justify-between border-b border-[#002C3E]/5 pb-3">
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">🗄️</span>
+                          <FiDatabase className="text-xl" />
                           <h3 className="text-lg font-extrabold text-[#002C3E]">סקריפט SQL להקמת בסיס הנתונים</h3>
                         </div>
                         <span className="text-[10px] bg-[#78BCC4]/20 text-[#2a8fa0] px-2.5 py-0.5 rounded-full font-bold">Supabase Code</span>
@@ -1148,7 +1149,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                     {/* Connection Stats Card */}
                     <div className="bg-white border border-[#002C3E]/5 rounded-3xl p-6 shadow-sm space-y-4">
                       <div className="flex items-center gap-3 border-b border-[#002C3E]/5 pb-3">
-                        <span className="text-xl">📡</span>
+                        <FiWifi className="text-xl" />
                         <h3 className="text-lg font-extrabold text-[#002C3E]">חיבור לענן</h3>
                       </div>
 
@@ -1186,7 +1187,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                     {/* System Info Card */}
                     <div className="bg-white border border-[#002C3E]/5 rounded-3xl p-6 shadow-sm space-y-4">
                       <div className="flex items-center gap-3 border-b border-[#002C3E]/5 pb-3">
-                        <span className="text-xl">ℹ️</span>
+                        <FiInfo className="text-xl" />
                         <h3 className="text-lg font-extrabold text-[#002C3E]">פרטי מערכת</h3>
                       </div>
 
@@ -1224,7 +1225,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                     onClick={() => setShowAddCustomerModal(true)}
                     className="w-full sm:w-auto bg-[#F7444E] hover:bg-[#de3d46] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-lg shadow-[#F7444E]/25 transition-all flex items-center justify-center gap-2"
                   >
-                    ➕ הוספת לקוח חדש במאגר
+                    <span className="flex items-center justify-center gap-2"><FiPlus className="text-xl"/> הוספת לקוח חדש במאגר</span>
                   </button>
 
                   <div className="w-full sm:max-w-md relative">
@@ -1232,7 +1233,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                       type="text"
                       value={customerSearchQuery}
                       onChange={(e) => setCustomerSearchQuery(e.target.value)}
-                      placeholder="🔍 חפש לפי שם חנות, בעל עסק או טלפון..."
+                      placeholder="חפש לפי שם חנות, בעל עסק או טלפון..."
                       className="w-full bg-[#F4F9FA] border border-[#002C3E]/10 rounded-2xl px-4 py-3.5 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
                     />
                     {customerSearchQuery && (
@@ -1286,24 +1287,24 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                                 onClick={() => setEditingCustomer(cust)}
                                 className="text-xs font-bold text-[#2a8fa0] bg-[#78BCC4]/15 hover:bg-[#78BCC4]/30 px-2.5 py-1.5 rounded-xl transition-all"
                               >
-                                ✏️ ערוך
+                                <span className="flex items-center justify-center gap-1"><FiEdit2 /> ערוך</span>
                               </button>
                               <button
                                 onClick={() => handleDeleteCustomer(cust.id)}
                                 className="text-xs font-bold text-[#F7444E] bg-[#FEF2F2] hover:bg-[#F7444E]/20 px-2.5 py-1.5 rounded-xl transition-all"
                               >
-                                ✕ מחק
+                                <span className="flex items-center justify-center gap-1"><FiTrash2 /> מחק</span>
                               </button>
                             </div>
                           </div>
 
                           <div className="space-y-2 border-t border-[#002C3E]/5 pt-3 text-xs">
                             <div className="flex items-start gap-2 text-[#002C3E]/80">
-                              <span className="text-[#002C3E]/45 block shrink-0">📍 כתובת:</span>
+                              <span className="text-[#002C3E]/45 block shrink-0"><span className="flex items-center gap-1"><FiMapPin /> כתובת:</span></span>
                               <span className="font-bold">{cust.address}</span>
                             </div>
                             <div className="flex items-center gap-2 text-[#002C3E]/80">
-                              <span className="text-[#002C3E]/45 block shrink-0">📞 טלפון:</span>
+                              <span className="text-[#002C3E]/45 block shrink-0"><span className="flex items-center gap-1"><FiPhone /> טלפון:</span></span>
                               <a href={`tel:${cust.phone}`} className="font-bold text-[#78BCC4] hover:underline" dir="ltr">{cust.phone}</a>
                             </div>
                           </div>
@@ -1320,7 +1321,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                             }}
                             className="bg-[#EEF6F8] hover:bg-[#002C3E] hover:text-white text-[#002C3E] text-xs font-bold px-3 py-2.5 rounded-xl transition-all"
                           >
-                            📞 פתח קריאת שירות ללקוח זה
+                            <span className="flex items-center justify-center gap-2"><FiPlus /> פתח קריאת שירות ללקוח זה</span>
                           </button>
                         </div>
                       </div>
@@ -1341,19 +1342,19 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
                     <span className="text-2xl md:text-3xl font-black text-[#F7444E]">{countPending}</span>
-                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">🔴 קריאות בממתין</span>
+                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">קריאות בממתין</span>
                   </div>
                   <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
                     <span className="text-2xl md:text-3xl font-black text-amber-500">{countInProgress}</span>
-                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">🟡 קריאות בטיפול</span>
+                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">קריאות בטיפול</span>
                   </div>
                   <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
                     <span className="text-2xl md:text-3xl font-black text-emerald-500">{countCompleted}</span>
-                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">🟢 משימות שהושלמו</span>
+                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">משימות שהושלמו</span>
                   </div>
                   <div className="bg-[#002C3E] rounded-2xl p-4 shadow-md flex flex-col items-center justify-center text-white">
                     <span className="text-2xl md:text-3xl font-black text-[#78BCC4]">₪{totalRevenue}</span>
-                    <span className="text-xs font-bold text-white/50 mt-1">💰 סך הכל הכנסות</span>
+                    <span className="text-xs font-bold text-white/50 mt-1">סך הכל הכנסות</span>
                   </div>
                 </div>
 
@@ -1375,7 +1376,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="🔍 חפש לפי שם לקוח, טלפון, כתובת, תקלה..."
+                        placeholder="חפש לפי שם לקוח, טלפון, כתובת, תקלה..."
                         className="w-full bg-[#F4F9FA] border border-[#002C3E]/10 rounded-2xl px-4 py-3.5 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-medium"
                       />
                       {searchQuery && (
@@ -1441,7 +1442,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                           : 'text-[#002C3E]/60 hover:text-[#002C3E] hover:bg-white/50'
                       }`}
                     >
-                      <span>{tab.icon || ''} {tab.label}</span>
+                      <span className="flex items-center gap-1.5">{tab.icon && <span className="text-lg">{tab.icon}</span>} {tab.label}</span>
                       {tab.count !== undefined && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                           filter === tab.id ? 'bg-[#78BCC4] text-[#002C3E]' : 'bg-[#002C3E]/10 text-[#002C3E]'
@@ -1510,11 +1511,11 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                               {/* Call Details */}
                               <div className="space-y-3 border-t border-[#002C3E]/5 pt-4 pb-2">
                                 <div>
-                                  <span className="text-xs font-bold text-[#002C3E]/45 block mb-1">📍 כתובת להגעה:</span>
+                                  <span className="text-xs font-bold text-[#002C3E]/45 block mb-1"><span className="flex items-center gap-1"><FiMapPin /> כתובת להגעה:</span></span>
                                   <p className="text-sm font-bold text-[#002C3E]/85 leading-relaxed">{c.customer_address}</p>
                                 </div>
                                 <div>
-                                  <span className="text-xs font-bold text-[#002C3E]/45 block mb-1">🔧 תיאור התקלה והכלי:</span>
+                                  <span className="text-xs font-bold text-[#002C3E]/45 block mb-1"><span className="flex items-center gap-1"><FiTool /> תיאור התקלה והכלי:</span></span>
                                   <p className="text-sm text-[#002C3E] leading-relaxed bg-[#F4F9FA] p-3.5 rounded-xl border border-[#002C3E]/5 font-semibold">
                                     {c.symptom}
                                   </p>
@@ -1524,7 +1525,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                               {/* Completed Info Section (If closed) */}
                               {c.status === 'completed' && (
                                 <div className="mt-4 bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4 space-y-2">
-                                  <span className="text-xs font-bold text-emerald-800 block">✅ תיעוד טיפול סגור:</span>
+                                  <span className="text-xs font-bold text-emerald-800 block"><span className="flex items-center gap-1"><FiCheckCircle /> תיעוד טיפול סגור:</span></span>
                                   <p className="text-sm font-semibold text-emerald-900"><strong className="text-xs block text-emerald-700">מה תוקן:</strong> {c.tech_notes || 'לא נרשמו הערות.'}</p>
                                   <div className="flex justify-between items-center border-t border-emerald-100/50 pt-2 mt-2">
                                     <span className="text-sm font-black text-emerald-900">💰 שולם סך הכל: ₪{c.total_price || '0'}</span>
