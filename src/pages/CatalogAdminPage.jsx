@@ -5,7 +5,8 @@ import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
 import PageSeo from '../components/PageSeo.jsx';
 import { supabase } from '../lib/supabase.js';
 
-const HASH = '2dae8ae7c497683869fd69dce52fa6f4fa58f405cbfd5b4599c9676902eba6d2';
+// סיסמת כניסה: admin123
+const HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
 
 async function sha256(msg) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));

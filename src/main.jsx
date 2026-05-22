@@ -7,7 +7,17 @@ import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import AccessibilityPage from './pages/AccessibilityPage.jsx';
 import CatalogAdminPage from './pages/CatalogAdminPage.jsx';
+import ServiceDashboardPage from './pages/ServiceDashboardPage.jsx';
 import './index.css';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+// Initialize AOS (Animate On Scroll)
+AOS.init({
+  duration: 800,
+  once: true,
+  easing: 'ease-out-cubic'
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -19,6 +29,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/accessibility" element={<AccessibilityPage />} />
           <Route path="/catalog" element={<CatalogAdminPage />} />
+          <Route path="/service" element={<ServiceDashboardPage />} />
+          <Route path="/servvice" element={<ServiceDashboardPage />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>
