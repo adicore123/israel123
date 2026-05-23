@@ -1,58 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Icons } from '../components/Icons.jsx';
-import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
-import PageSeo from '../components/PageSeo.jsx';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase.js';
-
-// סיסמת כניסה: admin123
-const HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
-
-async function sha256(msg) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-/* ─── LOGIN ─────────────────────────────────────────────── */
-function LoginForm({ onSuccess }) {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(false);
-    setLoading(true);
-    const hash = await sha256(password);
-    setLoading(false);
-    if (hash === HASH) onSuccess();
-    else setError(true);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto text-right">
-      <div className="mb-6">
-        <label className="block text-sm font-bold text-[#2a8fa0] mb-2">סיסמת מנהל קטלוג</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="הזן סיסמה"
-          className="w-full bg-[#F4F9FA] px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
-          autoFocus
-        />
-      </div>
-      {error && <p className="text-[#F7444E] text-sm font-semibold mb-4 text-center">סיסמה שגויה. נסה שנית.</p>}
-      <button
-        type="submit"
-        disabled={loading || !password}
-        className="w-full bg-[#F7444E] hover:bg-[#de3d46] text-white px-6 py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
-      >
-        {loading ? 'מאמת...' : 'כניסה לניהול קטלוג'}
-      </button>
-    </form>
-  );
-}
 
 /* ─── THUMBNAIL ──────────────────────────────────────────── */
 function Thumbnail({ src }) {
@@ -240,7 +187,7 @@ function ProductRow({ product, index, isOpen, onToggle, onChange, onRemove }) {
 }
 
 /* ─── ADMIN PANEL ────────────────────────────────────────── */
-function AdminPanel() {
+export default function CatalogAdminPanel() {
   const [data, setData] = useState({ enabled: false, products: [] });
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
@@ -337,7 +284,6 @@ function AdminPanel() {
 
   return (
     <div className="text-[#002C3E] text-right space-y-5">
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -374,7 +320,7 @@ function AdminPanel() {
 
       {/* Table */}
       {data.products.length > 0 ? (
-        <div className="rounded-xl border border-[#002C3E]/10 overflow-hidden">
+        <div className="rounded-xl border border-[#002C3E]/10 overflow-hidden bg-white">
           {/* Desktop Table Header */}
           <div className="hidden md:grid grid-cols-[56px_1fr_108px_1fr_128px] gap-4 px-5 py-2.5 bg-[#F4F9FA] border-b border-[#002C3E]/10">
             <span className="text-xs font-bold text-[#002C3E]/40 uppercase tracking-wider">תמונה</span>
@@ -440,58 +386,5 @@ function AdminPanel() {
         </button>
       </div>
     </div>
-  );
-}
-
-/* ─── PAGE ───────────────────────────────────────────────── */
-export default function CatalogAdminPage() {
-  const [authenticated, setAuthenticated] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.dir = 'rtl';
-    window.scrollTo(0, 0);
-  }, []);
-
-  return (
-    <>
-      <PageSeo title="ניהול קטלוג" description="ניהול קטלוג מוצרים - israelfix" path="/catalog" />
-      <AccessibilityMenu stackAboveWhatsApp={false} />
-      <div className="min-h-screen bg-[#EEF6F8] font-sans">
-        <header className="bg-white border-b border-[#002C3E]/10 py-4 shadow-sm">
-          <div className="container mx-auto px-5 md:px-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#78BCC4]/15 border border-[#78BCC4]/40 rounded-xl flex items-center justify-center text-[#78BCC4]">
-                <Icons.Electric className="w-4 h-4" />
-              </div>
-              <span className="font-display text-lg font-black tracking-tight text-[#002C3E]">
-                israelfix<span className="text-[#F7444E]">.</span>
-              </span>
-            </div>
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 text-[#002C3E]/50 hover:text-[#002C3E] transition-colors text-sm font-semibold"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7 7l-7-7 7-7" />
-              </svg>
-              חזרה לאתר
-            </Link>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 md:px-6 py-10 max-w-2xl">
-          <div className="bg-white border border-[#002C3E]/10 rounded-2xl p-5 md:p-7 shadow-sm">
-            {authenticated
-              ? <AdminPanel />
-              : <LoginForm onSuccess={() => setAuthenticated(true)} />
-            }
-          </div>
-        </main>
-
-        <footer className="border-t border-[#002C3E]/10 py-5 text-center text-xs text-[#002C3E]/30 font-medium">
-          &copy; {new Date().getFullYear()} israelfix · ניהול קטלוג
-        </footer>
-      </div>
-    </>
   );
 }

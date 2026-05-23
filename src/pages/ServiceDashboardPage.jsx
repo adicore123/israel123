@@ -4,7 +4,8 @@ import PageSeo from '../components/PageSeo.jsx';
 import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
 import { supabase } from '../lib/supabase.js';
 import { FaWaze, FaWhatsapp } from 'react-icons/fa';
-import { FiUnlock, FiMenu, FiTrash2, FiPlus, FiSettings, FiTool, FiCalendar, FiBriefcase, FiUser, FiClock, FiAlertCircle, FiSave, FiDollarSign, FiClipboard, FiUsers, FiWifi, FiHome, FiLogOut, FiLock, FiDatabase, FiInfo, FiSearch, FiPhone, FiMapPin, FiCheckCircle, FiEdit2, FiActivity } from 'react-icons/fi';
+import CatalogAdminPanel from '../components/CatalogAdminPanel.jsx';
+import { FiShoppingBag, FiUnlock, FiMenu, FiTrash2, FiPlus, FiSettings, FiTool, FiCalendar, FiBriefcase, FiUser, FiClock, FiAlertCircle, FiSave, FiDollarSign, FiClipboard, FiUsers, FiWifi, FiHome, FiLogOut, FiLock, FiDatabase, FiInfo, FiSearch, FiPhone, FiMapPin, FiCheckCircle, FiEdit2, FiActivity } from 'react-icons/fi';
 
 
 // סיסמת כניסה: admin123
@@ -824,6 +825,20 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
               </button>
 
               <button
+                onClick={() => setActiveTab('catalog')}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-black transition-all duration-200 ${
+                  activeTab === 'catalog'
+                    ? 'bg-[#78BCC4] text-[#002C3E] shadow-lg shadow-[#78BCC4]/20'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FiShoppingBag className="text-lg" />
+                  <span>ניהול קטלוג</span>
+                </div>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('settings')}
                 className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-black transition-all duration-200 ${
                   activeTab === 'settings'
@@ -969,6 +984,23 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
 
               <button
                 onClick={() => {
+                  setActiveTab('catalog');
+                  setIsMobileSidebarOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-black transition-all duration-200 ${
+                  activeTab === 'catalog'
+                    ? 'bg-[#78BCC4] text-[#002C3E]'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FiShoppingBag className="text-xl" />
+                  <span>ניהול קטלוג</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
                   setActiveTab('settings');
                   setIsMobileSidebarOpen(false);
                 }}
@@ -1025,6 +1057,19 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
         <main className="flex-1 min-h-screen p-4 md:p-8 text-right overflow-y-auto max-w-full">
           <div className="space-y-6">
             
+            {/* --- 0. CATALOG WORKSPACE --- */}
+            {activeTab === 'catalog' && (
+              <div className="space-y-6 animate-fade-in" data-aos="fade-up">
+                <div className="flex flex-col gap-1 mb-4">
+                  <h2 className="text-2xl font-black text-[#002C3E]">🛍️ ניהול קטלוג מוצרים</h2>
+                  <p className="text-[#002C3E]/50 text-xs">הוספה, עריכה ומחיקה של מוצרים המוצגים בדף הבית</p>
+                </div>
+                <div className="bg-white border border-[#002C3E]/5 rounded-3xl p-6 shadow-sm">
+                  <CatalogAdminPanel />
+                </div>
+              </div>
+            )}
+
             {/* --- 1. SETTINGS WORKSPACE --- */}
             {activeTab === 'settings' && (
               <div className="space-y-6 animate-fade-in" data-aos="fade-up">
