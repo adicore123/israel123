@@ -798,11 +798,6 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                   <FiClipboard className="text-lg" />
                   <span>קריאות שירות</span>
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold transition-all duration-200 ${
-                  activeTab === 'calls' ? 'bg-[#002C3E] text-white' : 'bg-white/15 text-white'
-                }`}>
-                  {calls.length}
-                </span>
               </button>
 
               <button
@@ -817,11 +812,6 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                   <FiUsers className="text-lg" />
                   <span>מאגר לקוחות</span>
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold transition-all duration-200 ${
-                  activeTab === 'customers' ? 'bg-[#002C3E] text-white' : 'bg-white/15 text-white'
-                }`}>
-                  {customers.length}
-                </span>
               </button>
 
               <button
@@ -953,11 +943,6 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                   <FiClipboard className="text-xl" />
                   <span>קריאות שירות</span>
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-                  activeTab === 'calls' ? 'bg-[#002C3E] text-white' : 'bg-white/15 text-white'
-                }`}>
-                  {calls.length}
-                </span>
               </button>
 
               <button
@@ -975,11 +960,6 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                   <FiUsers className="text-xl" />
                   <span>מאגר לקוחות</span>
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-                  activeTab === 'customers' ? 'bg-[#002C3E] text-white' : 'bg-white/15 text-white'
-                }`}>
-                  {customers.length}
-                </span>
               </button>
 
               <button
