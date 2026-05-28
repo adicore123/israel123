@@ -563,6 +563,19 @@ export default function App() {
             © {new Date().getFullYear()} israelfix · טכנאי אומן לכלים חשמליים
           </div>
         </div>
+
+        {/* WiseWheel Automate Credit */}
+        <div className="container mx-auto px-5 md:px-6 mt-6 pt-6 border-t border-[#002C3E]/5 flex justify-center items-center">
+          <a
+            href="https://wwcrm.co.il/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-[#002C3E] transition-colors text-xs md:text-sm font-semibold"
+          >
+            <span>עוצב ופותח על ידי Wisehweelcrm פתרונות טכנולוגיים לשוק המיקרומוביליטי</span>
+            <img src="/wisewheel-logo.png" alt="Wisehweelcrm" className="h-8 md:h-10 w-auto object-contain" />
+          </a>
+        </div>
       </footer>
       </main>
     </>
