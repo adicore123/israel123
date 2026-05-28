@@ -6,6 +6,8 @@ import ContactForm from './components/ContactForm.jsx';
 import AccessibilityMenu from './components/AccessibilityMenu.jsx';
 import SeoHead from './components/SeoHead.jsx';
 import CatalogSection from './components/CatalogSection.jsx';
+import { trackEvent } from './lib/analytics.js';
+
 const serviceToneClass = {
   teal: 'bg-[#78BCC4] text-[#002C3E]',
   coral: 'bg-[#F7444E] text-white',
@@ -45,7 +47,7 @@ const aboutCards = [
     iconVariant: 'teal',
   },
   {
-    title: 'פתיחה לעסקים וללקוחות',
+    title: 'פתיחה לעסקים ולקוחות',
     body: 'עם הזמן, זיהיתי את המצוקה ההולכת וגוברת בשוק: בעלי חנויות שקורסים תחת העומס במעבדה, ולקוחות שמחפשים ידיים מקצועיות באמת. לכן, החלטתי להרחיב את הפעילות, לפתוח את הדלתות, ולהעמיד את השירות, הידע והסטנדרטים המחמירים שלי לרשות כלל העסקים והלקוחות הפרטיים הזקוקים לפתרון אמיתי, אמין ומהיר.',
     icon: Icons.Wrench,
     iconVariant: 'coral',
@@ -96,6 +98,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    trackEvent('page_view');
+  }, []);
+
+  useEffect(() => {
     const el = whyUsRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -130,6 +136,7 @@ export default function App() {
         href="https://wa.me/972545050609?text=%D7%A9%D7%9C%D7%95%D7%9D%20%D7%90%D7%A0%D7%99%20%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%91%D7%A9%D7%A8%D7%95%D7%AA%20%D7%AA%D7%99%D7%A7%D7%95%D7%A0%D7%99%D7%9D%20%D7%9B%D7%9C%D7%99%20%D7%AA%D7%97%D7%91%D7%95%D7%A8%D7%94%20%D7%97%D7%A9%D7%9E%D7%9C%D7%99%D7%99%D7%9D"
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackEvent('whatsapp_click')}
         className="fixed bottom-5 left-5 z-[100] bg-[#06d6a0] text-white p-3.5 rounded-full shadow-lg flex items-center justify-center hover:bg-[#05b88a] transition-colors"
         title="שלחו הודעת וואטסאפ"
       >
@@ -138,6 +145,7 @@ export default function App() {
 
       <a
         href="tel:0545050609"
+        onClick={() => trackEvent('phone_click')}
         className="fixed bottom-5 right-5 z-[100] bg-[#F7444E] hover:bg-[#de3d46] text-white p-3.5 rounded-full shadow-lg coral-glow flex items-center justify-center transition-colors"
         title="חייגו עכשיו"
       >
