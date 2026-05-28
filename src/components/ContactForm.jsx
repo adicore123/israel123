@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { trackEvent } from '../lib/trackEvent.js';
 
 const VEHICLES = ['אופניים חשמליים', 'קורקינט', 'טרקטורון', 'קלנועית'];
 const AREAS = ['מרכז', 'צפון', 'דרום', 'ירושלים'];
@@ -39,6 +40,7 @@ const ContactForm = () => {
 
     const url = `https://wa.me/972545050609?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
+    trackEvent('whatsapp', 'contact_form');
     setIsSent(true);
   };
 

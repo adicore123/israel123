@@ -8,6 +8,7 @@ import PrivacyPage from './pages/PrivacyPage.jsx';
 import AccessibilityPage from './pages/AccessibilityPage.jsx';
 
 import ServiceDashboardPage from './pages/ServiceDashboardPage.jsx';
+import LogPage from './pages/LogPage.jsx';
 import './index.css';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
           <Route path="/service" element={<ServiceDashboardPage />} />
           <Route path="/servvice" element={<ServiceDashboardPage />} />
+          <Route path="/log" element={<LogPage />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>
