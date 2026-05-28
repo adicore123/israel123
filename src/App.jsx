@@ -566,15 +566,21 @@ export default function App() {
 
         {/* WiseWheel Automate Credit */}
         <div className="container mx-auto px-5 md:px-6 mt-6 pt-6 border-t border-[#002C3E]/5 flex justify-center items-center">
-          <a
-            href="https://wwcrm.co.il/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-[#002C3E] transition-colors text-xs md:text-sm font-semibold"
-          >
-            <span>עוצב ופותח על ידי Wisehweelcrm פתרונות טכנולוגיים לשוק המיקרומוביליטי</span>
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-xs md:text-sm font-semibold">
+            <span className="text-[#002C3E]/60 text-center sm:text-right">
+              עוצב ופותח על ידי Wisehweelcrm פתרונות טכנולוגיים לשוק המיקרומוביליטי
+            </span>
+            <span className="hidden sm:inline text-[#002C3E]/20">|</span>
+            <a
+              href="https://wwcrm.co.il/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#78BCC4] hover:text-[#002C3E] transition-colors underline"
+            >
+              https://wwcrm.co.il/
+            </a>
             <img src="/wisewheel-logo.png" alt="Wisehweelcrm" className="h-8 md:h-10 w-auto object-contain" />
-          </a>
+          </div>
         </div>
       </footer>
       </main>
