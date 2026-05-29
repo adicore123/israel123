@@ -6,6 +6,7 @@ import ContactForm from './components/ContactForm.jsx';
 import AccessibilityMenu from './components/AccessibilityMenu.jsx';
 import SeoHead from './components/SeoHead.jsx';
 import CatalogSection from './components/CatalogSection.jsx';
+import { trackEvent } from './lib/analytics.js';
 const serviceToneClass = {
   teal: 'bg-[#78BCC4] text-[#002C3E]',
   coral: 'bg-[#F7444E] text-white',
@@ -87,6 +88,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dir = 'rtl';
     document.documentElement.style.scrollBehavior = 'smooth';
+    
+    // Track site visit
+    trackEvent('visit');
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       setIsMobileMenuOpen(false);
@@ -132,6 +137,7 @@ export default function App() {
         rel="noopener noreferrer"
         className="fixed bottom-5 left-5 z-[100] bg-[#06d6a0] text-white p-3.5 rounded-full shadow-lg flex items-center justify-center hover:bg-[#05b88a] transition-colors"
         title="שלחו הודעת וואטסאפ"
+        onClick={() => trackEvent('whatsapp_click')}
       >
         <Icons.WhatsApp className="w-7 h-7" />
       </a>
@@ -140,6 +146,7 @@ export default function App() {
         href="tel:0545050609"
         className="fixed bottom-5 right-5 z-[100] bg-[#F7444E] hover:bg-[#de3d46] text-white p-3.5 rounded-full shadow-lg coral-glow flex items-center justify-center transition-colors"
         title="חייגו עכשיו"
+        onClick={() => trackEvent('phone_click')}
       >
         <Icons.Phone className="w-6 h-6" />
       </a>

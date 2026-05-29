@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { trackEvent } from '../lib/analytics.js';
 
 const VEHICLES = ['אופניים חשמליים', 'קורקינט', 'טרקטורון', 'קלנועית'];
 const AREAS = ['מרכז', 'צפון', 'דרום', 'ירושלים'];
@@ -29,6 +30,9 @@ const ContactForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
+
+    // Track WhatsApp form submission
+    trackEvent('whatsapp_click');
 
     const text =
       `היי ישראל, אני מעוניין בשירות תיקונים.\n\n` +
