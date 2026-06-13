@@ -25,7 +25,7 @@ export default function PrivacyPage() {
     <>
       <PageSeo
         title="מדיניות פרטיות"
-        description="מדיניות הפרטיות של אתר israelfix — איסוף מידע, עוגיות וזכויות המשתמש."
+        description="מדיניות הפרטיות של אתר E-TECH — איסוף מידע, עוגיות וזכויות המשתמש."
         path="/privacy"
       />
       <AccessibilityMenu stackAboveWhatsApp={false} />
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
               <Icons.Electric className="w-5 h-5" />
             </div>
             <span className="font-display text-xl font-black text-white tracking-tight">
-              israelfix<span className="text-[#F7444E]">.</span>
+              E-TECH<span className="text-[#F7444E]">.</span>
             </span>
           </Link>
           <Link
@@ -145,7 +145,7 @@ export default function PrivacyPage() {
       </main>
 
       <footer className="bg-white border-t border-[#002C3E]/5 py-6 text-center text-xs text-[#002C3E]/40 font-medium">
-        © {new Date().getFullYear()} israelfix · טכנאי אומן לכלים חשמליים
+        © {new Date().getFullYear()} E-TECH · טכנאי אומן לכלים חשמליים
       </footer>
       </div>
     </>
