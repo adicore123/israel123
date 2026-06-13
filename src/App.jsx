@@ -162,7 +162,7 @@ export default function App() {
 
       {/* --- כפתורים צפים (מחוץ ל־#site-content) --- */}
       <a
-        href="https://wa.me/972501234567"
+        href="https://wa.me/972545050609?text=%D7%A9%D7%9C%D7%95%D7%9D%20%D7%90%D7%A0%D7%99%20%D7%9E%D7%A2%D7%95%D7%A0%D7%99%D7%99%D7%9F%20%D7%91%D7%A9%D7%A8%D7%95%D7%AA%20%D7%AA%D7%99%D7%A7%D7%95%D7%A0%D7%99%D7%9D%20%D7%9B%D7%9C%D7%99%20%D7%AA%D7%97%D7%91%D7%95%D7%A8%D7%94%20%D7%97%D7%A9%D7%9E%D7%9C%D7%99%D7%99%D7%9D"
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => {
@@ -180,7 +180,7 @@ export default function App() {
       </a>
 
       <a
-        href="tel:0501234567"
+        href="tel:0545050609"
         onClick={() => {
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('event', 'click_phone', {
@@ -214,7 +214,7 @@ export default function App() {
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-xl md:text-2xl font-black text-[#002C3E] tracking-tight">
-                E-TECH<span className="text-[#F7444E]">.</span>
+                israelfix<span className="text-[#F7444E]">.</span>
               </span>
               <span className="text-[10px] md:text-xs font-bold text-[#4a9aa3] uppercase tracking-widest">
                 טכנאי מקצועי
@@ -595,7 +595,7 @@ export default function App() {
               <Icons.Electric className="w-4 h-4" />
             </div>
             <span className="font-display text-lg font-black tracking-tight text-[#002C3E]">
-              E-TECH<span className="text-[#F7444E]">.</span>
+              israelfix<span className="text-[#F7444E]">.</span>
             </span>
           </div>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs md:text-sm font-medium">
@@ -604,7 +604,7 @@ export default function App() {
             <Link to="/accessibility" className="hover:text-[#002C3E] transition-colors">נגישות</Link>
           </div>
           <div className="text-center md:text-right font-medium text-xs md:text-sm">
-            © {new Date().getFullYear()} E-TECH · טכנאי אומן לכלים חשמליים
+            © {new Date().getFullYear()} israelfix · טכנאי אומן לכלים חשמליים
           </div>
         </div>
       </footer>

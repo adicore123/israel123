@@ -5,20 +5,20 @@
 const raw = import.meta.env.VITE_SITE_URL || 'https://www.e-tech-israel.co.il';
 export const SITE_URL = raw.replace(/\/$/, '');
 
-export const SITE_NAME = 'ישראל טכנאי קורקינטים ואופניים חשמליים';
-export const BUSINESS_LEGAL_NAME = 'ישראל — טכנאי מקצועי לכלים חשמליים';
+export const SITE_NAME = 'israelfix';
+export const BUSINESS_LEGAL_NAME = 'israelfix — טכנאי מקצועי לכלים חשמליים';
 
 /** E.164 לשימוש ב-schema ולקישורי טלפון */
-export const BUSINESS_PHONE_E164 = '+972501234567';
+export const BUSINESS_PHONE_E164 = '+972545050609';
 
 export const SEO_HOME_TITLE =
-  'ישראל טכנאי קורקינטים ואופניים חשמליים | שירות מהיר ואמין בישראל';
+  'israelfix | טכנאי קורקינטים ואופניים חשמליים | תיקון בישראל';
 
 export const SEO_HOME_DESCRIPTION =
-  'ישראל טכנאי קורקינטים ואופניים חשמליים. שירות תיקונים מהיר ומקצועי עד הבית בפתח תקווה, אלעד, ראש העין, הוד השרון, רעננה וכפר סבא. אבחון, החלפת סוללה, מנועים ותקלות חשמל.';
+  'israelfix - תיקון קורקינטים ואופניים חשמליים. שירות מהיר ומקצועי עד הבית בפתח תקווה, אלעד, ראש העין, הוד השרון, רעננה וכפר סבא. אבחון, החלפת סוללה, מנועים ותקלות חשמל.';
 
 export const SEO_KEYWORDS =
-  'טכנאי קורקינטים פתח תקווה, תיקון אופניים חשמליים כפר סבא, תיקון קורקינטים רעננה, הוד השרון, אלעד, ראש העין, החלפת סוללה לקורקינט, תיקון אופניים חשמליים, טכנאי קורקינטים ואופניים';
+  'israelfix, טכנאי קורקינטים פתח תקווה, תיקון אופניים חשמליים כפר סבא, תיקון קורקינטים רעננה, הוד השרון, אלעד, ראש העין, החלפת סוללה לקורקינט';
 
 export function buildLocalBusinessJsonLd() {
   return {
