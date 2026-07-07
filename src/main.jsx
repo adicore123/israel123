@@ -6,6 +6,8 @@ import App from './App.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import AccessibilityPage from './pages/AccessibilityPage.jsx';
+import ServiceDashboardPage from './pages/ServiceDashboardPage.jsx';
+import LogsPage from './pages/LogsPage.jsx';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -18,6 +20,9 @@ const app = (
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/accessibility" element={<AccessibilityPage />} />
+          <Route path="/service" element={<ServiceDashboardPage />} />
+          <Route path="/servvice" element={<ServiceDashboardPage />} />
+          <Route path="/logs" element={<LogsPage />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>
