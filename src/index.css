@@ -112,3 +112,64 @@
 .a11y-fab-button {
   forced-color-adjust: none;
 }
+
+/* ===== UI/UX Pro Max Utilities ===== */
+a:focus-visible, 
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible, 
+textarea:focus-visible {
+  outline: 3px solid #78BCC4 !important;
+  outline-offset: 3px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.smooth-interactive {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-tilt {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.hover-tilt:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+.active-click {
+  transition: transform 0.1s ease;
+}
+
+.active-click:active {
+  transform: scale(0.96);
+}
+
+.table-row-hover {
+  transition: background-color 0.15s ease;
+}
+
+.table-row-hover:hover {
+  background-color: rgba(120, 188, 196, 0.05) !important;
+}
+
+@keyframes grow-bar {
+  from { width: 0%; }
+}
+
+.animate-grow-bar {
+  animation: grow-bar 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+

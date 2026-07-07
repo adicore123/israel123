@@ -57,12 +57,12 @@ export default function CatalogSection() {
           {data.products.map((product, i) => (
             <div
               key={i}
-              className={`flex flex-col gap-5 group mb-20 md:mb-32 ${
+              className={`flex flex-col gap-5 group mb-20 md:mb-32 hover-tilt active-click smooth-interactive ${
                 i % 2 === 1 && data.products.length > 1 ? 'md:mt-32' : ''
               }`}
             >
               {/* Image */}
-              <div className="relative aspect-[4/5] bg-[#F3F4F6] rounded-2xl overflow-hidden">
+              <div className="relative aspect-[4/5] bg-[#F3F4F6] rounded-2xl overflow-hidden shadow-md group-hover:shadow-xl smooth-interactive border border-gray-100">
                 {product.image ? (
                   <img
                     src={product.image}
@@ -100,7 +100,7 @@ export default function CatalogSection() {
                   href={`https://wa.me/972545050609?text=${encodeURIComponent(`היי ישראל, אני מעוניין במוצר: ${product.name}${product.price ? ` (${product.price})` : ''}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 w-full bg-[#002C3E] hover:bg-[#06d6a0] text-white px-6 py-3.5 rounded-full font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2"
+                  className="mt-2 w-full bg-[#002C3E] hover:bg-[#06d6a0] text-white px-6 py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 smooth-interactive active-click hover-tilt"
                 >
                   <WhatsAppIcon />
                   הזמן בוואטסאפ

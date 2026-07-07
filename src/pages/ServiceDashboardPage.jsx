@@ -80,6 +80,38 @@ const MOCK_CUSTOMERS = [
   }
 ];
 
+const BICYCLE_MODELS = ['Teverun Fighter', 'Cyber', 'Extreme 48V', 'אופני שטח חשמליים'];
+const SCOOTER_MODELS = ['Nami Burn-e 2', 'Xiaomi M365', 'Inokim OX', 'Kaabo Mantis'];
+
+const MOCK_REPAIRS = [
+  {
+    id: 201,
+    customer_id: 1,
+    customer_name: 'אופני דניאל',
+    customer_phone: '0521234567',
+    vehicle_type: 'bicycle',
+    vehicle_model: 'Teverun Fighter',
+    what_was_done: 'החלפת רפידות בלם קדמי ואחורי, כיוון בלמים הידראוליים.',
+    notes: 'בוצע לבקשת דניאל במעבדה',
+    price: '250',
+    status: 'completed',
+    created_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString()
+  },
+  {
+    id: 202,
+    customer_id: 2,
+    customer_name: 'בייק סנטר',
+    customer_phone: '0549876543',
+    vehicle_type: 'scooter',
+    vehicle_model: 'Nami Burn-e 2',
+    what_was_done: 'תיקון פנצ׳ר גלגל אחורי, החלפת פנימית וצמיג שטח חדש.',
+    notes: 'לקוח קבוע, הנחה של 10%',
+    price: '380',
+    status: 'completed',
+    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
+  }
+];
+
 /* ─── LOGIN FORM ────────────────────────────────────────── */
 function LoginForm({ onSuccess }) {
   const [password, setPassword] = useState('');
@@ -101,7 +133,7 @@ function LoginForm({ onSuccess }) {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-white rounded-3xl border border-[#002C3E]/10 p-8 shadow-xl text-right">
+    <div className="max-w-md mx-auto my-12 glass-card-light rounded-3xl p-8 shadow-xl text-right hover-tilt smooth-interactive">
       <div className="text-center mb-6">
         <div className="w-16 h-16 bg-[#002C3E]/5 rounded-2xl flex items-center justify-center text-[#78BCC4] mx-auto mb-4 border border-[#78BCC4]/20 shadow-inner">
           <FiUnlock className="w-8 h-8" strokeWidth={2.5} />
@@ -118,7 +150,7 @@ function LoginForm({ onSuccess }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="הזן סיסמת ניהול"
-            className="w-full bg-[#F4F9FA] px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
+            className="w-full bg-white/60 px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:ring-2 focus:ring-[#78BCC4]/20 transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
             autoFocus
           />
         </div>
@@ -132,7 +164,7 @@ function LoginForm({ onSuccess }) {
         <button
           type="submit"
           disabled={loading || !password}
-          className="w-full bg-[#002C3E] hover:bg-[#F7444E] text-white px-6 py-4 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#002C3E]/10 disabled:opacity-50"
+          className="w-full bg-[#002C3E] hover:bg-[#F7444E] text-white px-6 py-4 rounded-xl font-bold text-sm shadow-md shadow-[#002C3E]/10 disabled:opacity-50 smooth-interactive active-click hover-tilt"
         >
           {loading ? 'מאמת...' : 'כניסה לממשק העבודה'}
         </button>
@@ -200,6 +232,35 @@ export default function ServiceDashboardPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState('');
 
+  // ניהול תיקונים
+  const [repairs, setRepairs] = useState([]);
+  const [bicycleModels, setBicycleModels] = useState(BICYCLE_MODELS);
+  const [scooterModels, setScooterModels] = useState(SCOOTER_MODELS);
+  const [repairSearchQuery, setRepairSearchQuery] = useState('');
+  const [repairFilterType, setRepairFilterType] = useState('all'); // all, bicycle, scooter
+  const [repairFilterStatus, setRepairFilterStatus] = useState('all'); // all, pending, in_progress, completed
+  const [repairDateFilter, setRepairDateFilter] = useState('all'); // all, today, yesterday, week, month
+  
+  // מודל הוספת תיקון
+  const [showAddRepairModal, setShowAddRepairModal] = useState(false);
+  const [repairCustId, setRepairCustId] = useState('');
+  const [repairCustName, setRepairCustName] = useState('');
+  const [repairCustPhone, setRepairCustPhone] = useState('');
+  const [repairCustAddress, setRepairCustAddress] = useState('');
+  const [showRepairInlineAddCust, setShowRepairInlineAddCust] = useState(false);
+  
+  // שדות תיקון חדש
+  const [repairVehicleType, setRepairVehicleType] = useState('bicycle'); // bicycle, scooter
+  const [repairVehicleModel, setRepairVehicleModel] = useState(BICYCLE_MODELS[0]);
+  const [repairCustomModel, setRepairCustomModel] = useState('');
+  const [repairWhatWasDone, setRepairWhatWasDone] = useState('');
+  const [repairNotes, setRepairNotes] = useState('');
+  const [repairPrice, setRepairPrice] = useState('');
+  const [repairStatus, setRepairStatus] = useState('completed'); // completed, in_progress, pending
+
+  // מודל עריכת תיקון
+  const [editingRepair, setEditingRepair] = useState(null);
+
   // פונקציות עזר לסינון קריאות לפי תאריך
   const matchesDateFilter = (createdAtStr) => {
     if (dateFilter === 'all') return true;
@@ -255,6 +316,21 @@ export default function ServiceDashboardPage() {
         if (error) throw error;
 
         setCalls(data || []);
+
+        // טעינת תיקונים מ-Supabase
+        try {
+          const { data: repData, error: repError } = await supabase
+            .from('repairs')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!repError && repData) {
+            setRepairs(repData);
+          } else {
+            loadRepairsFromLocalStorage();
+          }
+        } catch {
+          loadRepairsFromLocalStorage();
+        }
         
         // טעינת לקוחות מ-Supabase
         try {
@@ -289,7 +365,18 @@ export default function ServiceDashboardPage() {
         localStorage.setItem('israelfix_service_calls', JSON.stringify(MOCK_CALLS));
         setCalls(MOCK_CALLS);
       }
+      loadRepairsFromLocalStorage();
       loadCustomersFromLocalStorage();
+    };
+
+    const loadRepairsFromLocalStorage = () => {
+      const localReps = localStorage.getItem('israelfix_repairs');
+      if (localReps) {
+        setRepairs(JSON.parse(localReps));
+      } else {
+        localStorage.setItem('israelfix_repairs', JSON.stringify(MOCK_REPAIRS));
+        setRepairs(MOCK_REPAIRS);
+      }
     };
 
     const loadCustomersFromLocalStorage = () => {
@@ -315,6 +402,226 @@ export default function ServiceDashboardPage() {
   const saveCustomersState = async (updatedCustomers) => {
     setCustomers(updatedCustomers);
     localStorage.setItem('israelfix_customers', JSON.stringify(updatedCustomers));
+  };
+
+  // שמירה ועדכון תיקונים
+  const saveRepairsState = async (updatedRepairs) => {
+    setRepairs(updatedRepairs);
+    localStorage.setItem('israelfix_repairs', JSON.stringify(updatedRepairs));
+  };
+
+  // הוספת דגם חדש לרשימת הבחירה
+  const handleAddNewModel = () => {
+    const newModel = prompt('הכנס שם דגם חדש להוספה לרשימה:');
+    if (newModel && newModel.trim()) {
+      const trimmed = newModel.trim();
+      if (repairVehicleType === 'bicycle') {
+        if (!bicycleModels.includes(trimmed)) {
+          setBicycleModels([...bicycleModels, trimmed]);
+        }
+        setRepairVehicleModel(trimmed);
+      } else {
+        if (!scooterModels.includes(trimmed)) {
+          setScooterModels([...scooterModels, trimmed]);
+        }
+        setRepairVehicleModel(trimmed);
+      }
+    }
+  };
+
+  // הוספת דגם חדש בעריכת תיקון
+  const handleAddNewModelEdit = () => {
+    const newModel = prompt('הכנס שם דגם חדש להוספה לרשימה:');
+    if (newModel && newModel.trim() && editingRepair) {
+      const trimmed = newModel.trim();
+      if (editingRepair.vehicle_type === 'bicycle') {
+        if (!bicycleModels.includes(trimmed)) {
+          setBicycleModels([...bicycleModels, trimmed]);
+        }
+        setEditingRepair({ ...editingRepair, vehicle_model: trimmed });
+      } else {
+        if (!scooterModels.includes(trimmed)) {
+          setScooterModels([...scooterModels, trimmed]);
+        }
+        setEditingRepair({ ...editingRepair, vehicle_model: trimmed });
+      }
+    }
+  };
+
+  // יצירת תיקון חדש
+  const handleCreateRepair = async (e) => {
+    e.preventDefault();
+    if (!repairCustName || !repairCustPhone) return;
+
+    const finalModel = repairVehicleModel === 'custom' ? repairCustomModel : repairVehicleModel;
+    if (!finalModel) return;
+
+    const newRepair = {
+      customer_id: repairCustId ? parseInt(repairCustId) : null,
+      customer_name: repairCustName,
+      customer_phone: repairCustPhone,
+      vehicle_type: repairVehicleType,
+      vehicle_model: finalModel,
+      what_was_done: repairWhatWasDone,
+      notes: repairNotes,
+      price: repairPrice,
+      status: repairStatus,
+      created_at: new Date().toISOString()
+    };
+
+    let updatedRepairs = [];
+
+    if (isUsingSupabase) {
+      try {
+        const { data, error } = await supabase
+          .from('repairs')
+          .insert([newRepair])
+          .select();
+
+        if (error) throw error;
+        updatedRepairs = [data[0], ...repairs];
+      } catch (err) {
+        console.error('Supabase repair insert failed, adding to local instead:', err.message);
+        const localRepair = { id: Date.now(), ...newRepair };
+        updatedRepairs = [localRepair, ...repairs];
+      }
+    } else {
+      const localRepair = { id: Date.now(), ...newRepair };
+      updatedRepairs = [localRepair, ...repairs];
+    }
+
+    saveRepairsState(updatedRepairs);
+
+    // איפוס שדות וסגירה
+    setRepairCustId('');
+    setRepairCustName('');
+    setRepairCustPhone('');
+    setRepairCustAddress('');
+    setRepairWhatWasDone('');
+    setRepairNotes('');
+    setRepairPrice('');
+    setRepairStatus('completed');
+    setRepairCustomModel('');
+    setShowAddRepairModal(false);
+  };
+
+  // יצירת לקוח מהיר מתוך תיקון
+  const handleCreateCustomerInlineRepair = async (e) => {
+    e.preventDefault();
+    if (!inlineShopName || !inlineOwnerName || !inlinePhone || !inlineAddress) return;
+
+    const newCustomer = {
+      shop_name: inlineShopName,
+      owner_name: inlineOwnerName,
+      phone: inlinePhone,
+      address: inlineAddress,
+      created_at: new Date().toISOString()
+    };
+
+    let createdCust = null;
+    let updatedCustList = [];
+
+    if (isUsingSupabase) {
+      try {
+        const { data, error } = await supabase
+          .from('customers')
+          .insert([newCustomer])
+          .select();
+
+        if (error) throw error;
+        createdCust = data[0];
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      } catch (err) {
+        console.error('Supabase customer insert failed:', err.message);
+        createdCust = { id: Date.now(), ...newCustomer };
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      }
+    } else {
+      createdCust = { id: Date.now(), ...newCustomer };
+      updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+    }
+
+    saveCustomersState(updatedCustList);
+
+    // מילוי אוטומטי בטופס התיקון
+    setRepairCustId(createdCust.id);
+    setRepairCustName(`${createdCust.shop_name} (${createdCust.owner_name})`);
+    setRepairCustPhone(createdCust.phone);
+    setRepairCustAddress(createdCust.address);
+
+    // איפוס שדות
+    setInlineShopName('');
+    setInlineOwnerName('');
+    setInlinePhone('');
+    setInlineAddress('');
+    setShowRepairInlineAddCust(false);
+  };
+
+  // שינוי בחירת לקוח בתיקון
+  const handleSelectCustomerChangeRepair = (id) => {
+    setRepairCustId(id);
+    if (!id) {
+      setRepairCustName('');
+      setRepairCustPhone('');
+      setRepairCustAddress('');
+      return;
+    }
+    const found = customers.find(c => String(c.id) === String(id));
+    if (found) {
+      setRepairCustName(`${found.shop_name} (${found.owner_name})`);
+      setRepairCustPhone(found.phone);
+      setRepairCustAddress(found.address);
+    }
+  };
+
+  // מחיקת תיקון
+  const handleDeleteRepair = async (id) => {
+    if (!window.confirm('האם אתה בטוח שברצונך למחוק את התיקון הזה מהמערכת?')) return;
+
+    let updatedRepairs = repairs.filter(r => r.id !== id);
+    saveRepairsState(updatedRepairs);
+
+    if (isUsingSupabase) {
+      try {
+        await supabase
+          .from('repairs')
+          .delete()
+          .eq('id', id);
+      } catch (err) {
+        console.error('Supabase repair delete error:', err.message);
+      }
+    }
+  };
+
+  // עדכון תיקון קיים
+  const handleUpdateRepair = async (e) => {
+    e.preventDefault();
+    if (!editingRepair || !editingRepair.customer_name || !editingRepair.customer_phone) return;
+
+    let updatedRepairs = repairs.map(r => r.id === editingRepair.id ? editingRepair : r);
+    saveRepairsState(updatedRepairs);
+
+    if (isUsingSupabase) {
+      try {
+        await supabase
+          .from('repairs')
+          .update({
+            customer_name: editingRepair.customer_name,
+            customer_phone: editingRepair.customer_phone,
+            vehicle_type: editingRepair.vehicle_type,
+            vehicle_model: editingRepair.vehicle_model,
+            what_was_done: editingRepair.what_was_done,
+            notes: editingRepair.notes,
+            price: editingRepair.price,
+            status: editingRepair.status
+          })
+          .eq('id', editingRepair.id);
+      } catch (err) {
+        console.error('Supabase repair update error:', err.message);
+      }
+    }
+
+    setEditingRepair(null);
   };
 
   // 1. פתיחת קריאה מהירה חדשה
@@ -731,6 +1038,25 @@ CREATE TABLE IF NOT EXISTS public.customers (
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow anonymous read and write" ON public.customers 
     FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- 3. טבלת תיקונים במעבדה
+CREATE TABLE IF NOT EXISTS public.repairs (
+    id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    customer_id bigint REFERENCES public.customers(id) ON DELETE SET NULL,
+    customer_name text NOT NULL,
+    customer_phone text NOT NULL,
+    vehicle_type text NOT NULL, -- 'bicycle', 'scooter'
+    vehicle_model text NOT NULL,
+    what_was_done text NOT NULL,
+    notes text,
+    price text DEFAULT ''::text,
+    status text DEFAULT 'completed'::text NOT NULL
+);
+
+ALTER TABLE public.repairs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow anonymous read and write" ON public.repairs 
+    FOR ALL TO anon USING (true) WITH CHECK (true);
   `.trim();
 
   if (!authenticated) {
@@ -797,6 +1123,20 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 <div className="flex items-center gap-2.5">
                   <FiClipboard className="text-lg" />
                   <span>קריאות שירות</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('repairs')}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-black transition-all duration-200 ${
+                  activeTab === 'repairs'
+                    ? 'bg-[#78BCC4] text-[#002C3E] shadow-lg shadow-[#78BCC4]/20'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FiTool className="text-lg" />
+                  <span>ניהול תיקונים</span>
                 </div>
               </button>
 
@@ -942,6 +1282,23 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                 <div className="flex items-center gap-2.5">
                   <FiClipboard className="text-xl" />
                   <span>קריאות שירות</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('repairs');
+                  setIsMobileSidebarOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-black transition-all duration-200 ${
+                  activeTab === 'repairs'
+                    ? 'bg-[#78BCC4] text-[#002C3E]'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FiTool className="text-xl" />
+                  <span>ניהול תיקונים</span>
                 </div>
               </button>
 
@@ -1345,24 +1702,353 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
               </div>
             )}
 
+            {/* --- 2.5 REPAIRS WORKSPACE --- */}
+            {activeTab === 'repairs' && (
+              <div className="space-y-6 animate-fade-in" data-aos="fade-up">
+                {/* --- Top Metrics Banner --- */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
+                    <span className="text-2xl md:text-3xl font-black text-[#F7444E]">
+                      {repairs.filter(r => r.status === 'pending').length}
+                    </span>
+                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">תיקונים בממתין</span>
+                  </div>
+                  <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
+                    <span className="text-2xl md:text-3xl font-black text-amber-500">
+                      {repairs.filter(r => r.status === 'in_progress').length}
+                    </span>
+                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">תיקונים בטיפול</span>
+                  </div>
+                  <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
+                    <span className="text-2xl md:text-3xl font-black text-emerald-500">
+                      {repairs.filter(r => r.status === 'completed').length}
+                    </span>
+                    <span className="text-xs font-bold text-[#002C3E]/40 mt-1">תיקונים שהושלמו</span>
+                  </div>
+                  <div className="bg-[#002C3E] rounded-2xl p-4 shadow-md flex flex-col items-center justify-center text-white">
+                    <span className="text-2xl md:text-3xl font-black text-[#78BCC4]">
+                      ₪{repairs.filter(r => r.status === 'completed' && r.price).reduce((sum, r) => sum + parseFloat(r.price || 0), 0)}
+                    </span>
+                    <span className="text-xs font-bold text-white/50 mt-1">סך הכל הכנסות</span>
+                  </div>
+                </div>
+
+                {/* --- Advanced Filters Panel --- */}
+                <div className="bg-white border border-[#002C3E]/5 rounded-3xl p-5 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <button
+                      onClick={() => {
+                        setRepairCustId('');
+                        setRepairCustName('');
+                        setRepairCustPhone('');
+                        setRepairCustAddress('');
+                        setRepairWhatWasDone('');
+                        setRepairNotes('');
+                        setRepairPrice('');
+                        setRepairStatus('completed');
+                        setRepairVehicleType('bicycle');
+                        setRepairVehicleModel(BICYCLE_MODELS[0]);
+                        setRepairCustomModel('');
+                        setShowRepairInlineAddCust(false);
+                        setShowAddRepairModal(true);
+                      }}
+                      className="w-full sm:w-auto bg-[#F7444E] hover:bg-[#de3d46] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-lg shadow-[#F7444E]/25 transition-all flex items-center justify-center gap-2 shrink-0"
+                    >
+                      <FiPlus className="w-5 h-5" strokeWidth={3} />
+                      הוספת תיקון חדש
+                    </button>
+
+                    <div className="w-full sm:max-w-md relative">
+                      <input
+                        type="text"
+                        value={repairSearchQuery}
+                        onChange={(e) => setRepairSearchQuery(e.target.value)}
+                        placeholder="חפש לפי שם לקוח, טלפון, דגם, מה שבוצע..."
+                        className="w-full bg-[#F4F9FA] border border-[#002C3E]/10 rounded-2xl px-4 py-3.5 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-medium"
+                      />
+                      {repairSearchQuery && (
+                        <button
+                          onClick={() => setRepairSearchQuery('')}
+                          className="absolute left-3 top-3.5 text-xs text-[#002C3E]/30 hover:text-[#002C3E] font-bold"
+                        >
+                          ✕ נקה
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* filters line */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-[#002C3E]/5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#002C3E]/55 mb-1.5"><span className="flex items-center gap-1.5 mb-1.5 text-xs font-bold text-[#002C3E]/55"><FiCalendar /> סינון לפי ימים</span></label>
+                      <select
+                        value={repairDateFilter}
+                        onChange={(e) => setRepairDateFilter(e.target.value)}
+                        className="w-full bg-[#F4F9FA] border border-[#002C3E]/10 rounded-xl px-3 py-2.5 outline-none focus:border-[#78BCC4] text-xs font-bold text-[#002C3E] cursor-pointer"
+                      >
+                        <option value="all">כל הזמן</option>
+                        <option value="today">היום האחרון</option>
+                        <option value="yesterday">אתמול</option>
+                        <option value="week">7 הימים האחרונים</option>
+                        <option value="month">החודש הנוכחי</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#002C3E]/55 mb-1.5"><span className="flex items-center gap-1.5 mb-1.5 text-xs font-bold text-[#002C3E]/55">🚲 סוג הכלי</span></label>
+                      <select
+                        value={repairFilterType}
+                        onChange={(e) => setRepairFilterType(e.target.value)}
+                        className="w-full bg-[#F4F9FA] border border-[#002C3E]/10 rounded-xl px-3 py-2.5 outline-none focus:border-[#78BCC4] text-xs font-bold text-[#002C3E] cursor-pointer"
+                      >
+                        <option value="all">כל סוגי הכלים</option>
+                        <option value="bicycle">אופניים חשמליים</option>
+                        <option value="scooter">קורקינטים חשמליים</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#002C3E]/55 mb-1.5"><span className="flex items-center gap-1.5 mb-1.5 text-xs font-bold text-[#002C3E]/55"><FiActivity /> סטטוס התיקון</span></label>
+                      <select
+                        value={repairFilterStatus}
+                        onChange={(e) => setRepairFilterStatus(e.target.value)}
+                        className="w-full bg-[#F4F9FA] border border-[#002C3E]/10 rounded-xl px-3 py-2.5 outline-none focus:border-[#78BCC4] text-xs font-bold text-[#002C3E] cursor-pointer"
+                      >
+                        <option value="all">כל הסטטוסים</option>
+                        <option value="pending">ממתין</option>
+                        <option value="in_progress">בטיפול במעבדה</option>
+                        <option value="completed">הושלם בהצלחה</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* --- Repairs List --- */}
+                <div className="space-y-4">
+                  {/* Filter repairs list */}
+                  {(() => {
+                    const filtered = repairs.filter(r => {
+                      if (repairSearchQuery) {
+                        const q = repairSearchQuery.toLowerCase();
+                        const nameMatch = r.customer_name?.toLowerCase().includes(q);
+                        const phoneMatch = r.customer_phone?.includes(q);
+                        const modelMatch = r.vehicle_model?.toLowerCase().includes(q);
+                        const actionMatch = r.what_was_done?.toLowerCase().includes(q);
+                        const notesMatch = r.notes?.toLowerCase().includes(q);
+                        if (!nameMatch && !phoneMatch && !modelMatch && !actionMatch && !notesMatch) return false;
+                      }
+                      if (repairFilterType !== 'all' && r.vehicle_type !== repairFilterType) return false;
+                      if (repairFilterStatus !== 'all' && r.status !== repairFilterStatus) return false;
+                      if (repairDateFilter !== 'all') {
+                        const date = new Date(r.created_at);
+                        const now = new Date();
+                        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                        const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+                        const weekStart = new Date(todayStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+                        if (repairDateFilter === 'today' && date < todayStart) return false;
+                        if (repairDateFilter === 'yesterday' && (date < yesterdayStart || date >= todayStart)) return false;
+                        if (repairDateFilter === 'week' && date < weekStart) return false;
+                        if (repairDateFilter === 'month' && date < monthStart) return false;
+                      }
+                      return true;
+                    });
+
+                    if (filtered.length === 0) {
+                      return (
+                        <div className="bg-white rounded-3xl border border-[#002C3E]/5 py-12 text-center text-[#002C3E]/30 text-sm font-semibold">
+                          אין תיקונים העונים לסינון שבחרת
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <>
+                        {/* --- Mobile View (block md:hidden) --- */}
+                        <div className="block md:hidden space-y-4">
+                          {filtered.map(r => (
+                            <div
+                              key={r.id}
+                              className="bg-white border border-[#002C3E]/5 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden text-right"
+                            >
+                              <div className={`absolute top-0 right-0 left-0 h-1.5 ${
+                                r.status === 'pending' ? 'bg-[#F7444E]' :
+                                r.status === 'in_progress' ? 'bg-amber-400' : 'bg-emerald-500'
+                              }`} />
+
+                              <div className="flex justify-between items-start gap-2 mb-3">
+                                <div>
+                                  <h3 className="text-lg font-extrabold text-[#002C3E]">
+                                    {r.customer_name}
+                                  </h3>
+                                  <a href={`tel:${r.customer_phone}`} className="text-xs text-[#78BCC4] font-bold block mt-1" dir="ltr">
+                                    {r.customer_phone}
+                                  </a>
+                                </div>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                  r.status === 'pending' ? 'bg-[#F7444E]/10 text-[#F7444E]' :
+                                  r.status === 'in_progress' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
+                                }`}>
+                                  {r.status === 'pending' ? 'ממתין' :
+                                   r.status === 'in_progress' ? 'בטיפול' : 'הושלם'}
+                                </span>
+                              </div>
+
+                              <div className="space-y-2 border-t border-[#002C3E]/5 pt-3 text-xs">
+                                <div>
+                                  <span className="text-[#002C3E]/50 block">סוג כלי ודגם:</span>
+                                  <span className="font-bold">{r.vehicle_type === 'bicycle' ? '🚲 אופניים' : '🛴 קורקינט'} - {r.vehicle_model}</span>
+                                </div>
+                                <div>
+                                  <span className="text-[#002C3E]/50 block">מה תוקן:</span>
+                                  <span className="font-bold text-[#002C3E]/90">{r.what_was_done}</span>
+                                </div>
+                                {r.notes && (
+                                  <div>
+                                    <span className="text-[#002C3E]/50 block">הערות:</span>
+                                    <span className="italic text-[#002C3E]/70">{r.notes}</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between items-center border-t border-[#002C3E]/5 pt-2 mt-2 font-black text-sm">
+                                  <span>מחיר:</span>
+                                  <span className="text-[#78BCC4]">₪{r.price || '0'}</span>
+                                </div>
+                              </div>
+
+                              <div className="mt-4 pt-3 border-t border-[#002C3E]/5 flex justify-end gap-2">
+                                <a
+                                  href={`https://wa.me/972${r.customer_phone.replace(/^0/, '')}?text=${encodeURIComponent(`היי ${r.customer_name}, להלן סיכום הטיפול שבוצע בכלי שלך במעבדה:\n\n🛠️ *כלי:* ${r.vehicle_model}\n⚙️ *מה בוצע:* ${r.what_was_done}\n💰 *סך הכל שולם:* ₪${r.price || '0'}\n\nתודה רבה! 🚀`)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-[#25D366] hover:bg-[#128C7E] text-white p-2 rounded-xl transition-all"
+                                  title="שלח סיכום בוואטסאפ"
+                                >
+                                  <FaWhatsapp className="text-base" />
+                                </a>
+                                <button
+                                  onClick={() => setEditingRepair(r)}
+                                  className="text-xs font-bold text-[#2a8fa0] bg-[#78BCC4]/15 hover:bg-[#78BCC4]/30 px-3 py-2 rounded-xl transition-all"
+                                >
+                                  ערוך
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteRepair(r.id)}
+                                  className="text-xs font-bold text-[#F7444E] bg-[#FEF2F2] hover:bg-[#F7444E]/20 px-3 py-2 rounded-xl transition-all"
+                                >
+                                  מחק
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* --- Desktop View (hidden md:block) --- */}
+                        <div className="hidden md:block bg-white border border-[#002C3E]/5 rounded-3xl shadow-sm overflow-hidden text-right">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-right border-collapse text-[#002C3E]">
+                              <thead>
+                                <tr className="bg-[#002C3E] text-white text-xs font-bold border-b border-[#002C3E]/10">
+                                  <th className="py-4 px-4 font-black">תאריך</th>
+                                  <th className="py-4 px-4 font-black">לקוח</th>
+                                  <th className="py-4 px-4 font-black">פרטי הכלי</th>
+                                  <th className="py-4 px-4 font-black w-1/3">מה נעשה בכלי</th>
+                                  <th className="py-4 px-4 font-black text-center">מחיר</th>
+                                  <th className="py-4 px-4 font-black text-center">סטטוס</th>
+                                  <th className="py-4 px-4 font-black text-left">פעולות</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-[#002C3E]/5 text-xs">
+                                {filtered.map(r => {
+                                  const formattedDate = new Date(r.created_at).toLocaleDateString('he-IL', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric'
+                                  });
+                                  return (
+                                    <tr key={r.id} className="hover:bg-[#78BCC4]/5 transition-colors">
+                                      <td className="py-4 px-4 font-medium text-[#002C3E]/60 whitespace-nowrap" dir="ltr">{formattedDate}</td>
+                                      <td className="py-4 px-4">
+                                        <div className="font-extrabold text-[#002C3E] text-sm">{r.customer_name}</div>
+                                        <a href={`tel:${r.customer_phone}`} className="text-[#78BCC4] hover:underline font-semibold" dir="ltr">{r.customer_phone}</a>
+                                      </td>
+                                      <td className="py-4 px-4 whitespace-nowrap font-bold">
+                                        {r.vehicle_type === 'bicycle' ? '🚲 אופניים' : '🛴 קורקינט'}
+                                        <div className="text-xs text-[#002C3E]/60 font-medium">{r.vehicle_model}</div>
+                                      </td>
+                                      <td className="py-4 px-4 leading-relaxed font-semibold">
+                                        <div>{r.what_was_done}</div>
+                                        {r.notes && (
+                                          <div className="text-[10px] text-[#002C3E]/50 font-normal mt-0.5">הערות: {r.notes}</div>
+                                        )}
+                                      </td>
+                                      <td className="py-4 px-4 text-center font-black text-sm text-[#002C3E]">₪{r.price || '0'}</td>
+                                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold inline-block ${
+                                          r.status === 'pending' ? 'bg-[#F7444E]/10 text-[#F7444E]' :
+                                          r.status === 'in_progress' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
+                                        }`}>
+                                          {r.status === 'pending' ? 'ממתין' :
+                                           r.status === 'in_progress' ? 'בטיפול' : 'הושלם'}
+                                        </span>
+                                      </td>
+                                      <td className="py-4 px-4 text-left">
+                                        <div className="flex items-center justify-end gap-2">
+                                          <a
+                                            href={`https://wa.me/972${r.customer_phone.replace(/^0/, '')}?text=${encodeURIComponent(`היי ${r.customer_name}, להלן סיכום הטיפול שבוצע בכלי שלך במעבדה:\n\n🛠️ *כלי:* ${r.vehicle_model}\n⚙️ *מה בוצע:* ${r.what_was_done}\n💰 *סך הכל שולם:* ₪${r.price || '0'}\n\nתודה רבה! 🚀`)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 bg-[#EEF6F8] hover:bg-[#25D366]/10 text-[#002C3E] hover:text-[#128C7E] rounded-xl transition-all"
+                                            title="שלח סיכום בוואטסאפ"
+                                          >
+                                            <FaWhatsapp className="text-lg" />
+                                          </a>
+                                          <button
+                                            onClick={() => setEditingRepair(r)}
+                                            className="text-xs font-bold text-[#2a8fa0] bg-[#78BCC4]/15 hover:bg-[#78BCC4]/30 px-3 py-2 rounded-xl transition-all"
+                                          >
+                                            ערוך
+                                          </button>
+                                          <button
+                                            onClick={() => handleDeleteRepair(r.id)}
+                                            className="text-xs font-bold text-[#F7444E] bg-[#FEF2F2] hover:bg-[#F7444E]/20 px-3 py-2 rounded-xl transition-all"
+                                          >
+                                            מחק
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
             {/* --- 3. SERVICE CALLS WORKSPACE --- */}
             {activeTab === 'calls' && (
               <div className="space-y-6 animate-fade-in" data-aos="fade-up">
                 {/* --- Top Metrics Banner --- */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
+                  <div className="glass-card-light rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center hover-tilt active-click smooth-interactive hover:shadow-md border border-white/50">
                     <span className="text-2xl md:text-3xl font-black text-[#F7444E]">{countPending}</span>
                     <span className="text-xs font-bold text-[#002C3E]/40 mt-1">קריאות בממתין</span>
                   </div>
-                  <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
+                  <div className="glass-card-light rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center hover-tilt active-click smooth-interactive hover:shadow-md border border-white/50">
                     <span className="text-2xl md:text-3xl font-black text-amber-500">{countInProgress}</span>
                     <span className="text-xs font-bold text-[#002C3E]/40 mt-1">קריאות בטיפול</span>
                   </div>
-                  <div className="bg-white border border-[#002C3E]/5 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center">
+                  <div className="glass-card-light rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center hover-tilt active-click smooth-interactive hover:shadow-md border border-white/50">
                     <span className="text-2xl md:text-3xl font-black text-emerald-500">{countCompleted}</span>
                     <span className="text-xs font-bold text-[#002C3E]/40 mt-1">משימות שהושלמו</span>
                   </div>
-                  <div className="bg-[#002C3E] rounded-2xl p-4 shadow-md flex flex-col items-center justify-center text-white">
+                  <div className="bg-[#002C3E] rounded-2xl p-4 shadow-md flex flex-col items-center justify-center text-white hover-tilt active-click smooth-interactive hover:shadow-lg">
                     <span className="text-2xl md:text-3xl font-black text-[#78BCC4]">₪{totalRevenue}</span>
                     <span className="text-xs font-bold text-white/50 mt-1">סך הכל הכנסות</span>
                   </div>
@@ -1686,7 +2372,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                                 });
                                 return (
                                   <React.Fragment key={c.id}>
-                                    <tr className={`hover:bg-[#78BCC4]/5 transition-colors ${c.status === 'completed' ? 'bg-emerald-50/20' : ''}`}>
+                                    <tr className={`table-row-hover transition-colors ${c.status === 'completed' ? 'bg-emerald-50/20' : ''}`}>
                                       <td className="py-4 px-4 font-medium text-[#002C3E]/60 whitespace-nowrap" dir="ltr">{formattedDate}</td>
                                       <td className="py-4 px-4">
                                         <div className="font-extrabold text-[#002C3E] text-sm">{c.customer_name}</div>
@@ -2272,6 +2958,491 @@ CREATE POLICY "Allow anonymous read and write" ON public.customers
                     className="flex-1 bg-[#002C3E] hover:bg-[#F7444E] text-white py-3.5 rounded-xl font-black text-sm transition-all shadow-md shadow-[#002C3E]/20"
                   >
                     <span className="flex items-center justify-center gap-1.5"><FiSave /> עדכן לקוח</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* --- MODAL: Add New Repair Dialog --- */}
+        {showAddRepairModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl border border-[#002C3E]/10 p-6 md:p-8 max-w-lg w-full text-right shadow-2xl space-y-5 overflow-y-auto max-h-[90vh]">
+              <div className="flex justify-between items-center border-b border-[#002C3E]/5 pb-3">
+                <button
+                  onClick={() => setShowAddRepairModal(false)}
+                  className="text-[#002C3E]/40 hover:text-[#002C3E] text-lg font-bold"
+                >✕</button>
+                <h3 className="text-xl font-extrabold text-[#002C3E] flex items-center gap-2"><FiTool /> הוספת תיקון חדש במעבדה</h3>
+              </div>
+
+              <form onSubmit={handleCreateRepair} className="space-y-4">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-bold text-[#002C3E]/60 flex items-center gap-1.5"><FiUser /> בחירת לקוח מהמאגר (אופציונלי)</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowRepairInlineAddCust(!showRepairInlineAddCust);
+                        if (!showRepairInlineAddCust) {
+                          setRepairCustId('');
+                          setRepairCustName('');
+                          setRepairCustPhone('');
+                          setRepairCustAddress('');
+                        }
+                      }}
+                      className="text-xs font-bold text-[#78BCC4] hover:text-[#2a8fa0] transition-colors"
+                    >
+                      {showRepairInlineAddCust ? '✕ ביטול הוספה מהירה' : '➕ הוסף לקוח חדש למאגר'}
+                    </button>
+                  </div>
+
+                  {!showRepairInlineAddCust ? (
+                    <>
+                      <select
+                        value={repairCustId}
+                        onChange={(e) => handleSelectCustomerChangeRepair(e.target.value)}
+                        className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-bold"
+                      >
+                        <option value="">-- הזן פרטים ידנית או בחר מהמאגר --</option>
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.shop_name} ({c.owner_name})
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  ) : (
+                    <div className="bg-[#EEF6F8] p-4 rounded-2xl border border-[#78BCC4]/20 space-y-3 mt-1">
+                      <div className="text-xs font-bold text-[#002C3E] border-b border-[#002C3E]/10 pb-1.5 flex items-center gap-1">
+                        <span className="flex items-center gap-1.5"><FiUser /> הוספת לקוח מהירה למאגר</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">שם חנות / בית עסק</label>
+                          <input
+                            type="text"
+                            value={inlineShopName}
+                            onChange={(e) => setInlineShopName(e.target.value)}
+                            placeholder="לדוגמא: אופני דניאל"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">שם בעל העסק</label>
+                          <input
+                            type="text"
+                            value={inlineOwnerName}
+                            onChange={(e) => setInlineOwnerName(e.target.value)}
+                            placeholder="דניאל כהן"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">מספר טלפון</label>
+                          <input
+                            type="tel"
+                            value={inlinePhone}
+                            onChange={(e) => setInlinePhone(e.target.value)}
+                            placeholder="0521234567"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                            dir="ltr"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">כתובת מלאה</label>
+                          <input
+                            type="text"
+                            value={inlineAddress}
+                            onChange={(e) => setInlineAddress(e.target.value)}
+                            placeholder="הרצל 40, ראשון לציון"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 justify-end pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowRepairInlineAddCust(false);
+                            setInlineShopName('');
+                            setInlineOwnerName('');
+                            setInlinePhone('');
+                            setInlineAddress('');
+                          }}
+                          className="bg-white hover:bg-slate-100 text-[#002C3E] text-[11px] font-bold px-3 py-1.5 rounded-lg border border-[#002C3E]/10 transition-all"
+                        >
+                          ביטול
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCreateCustomerInlineRepair}
+                          className="bg-[#002C3E] hover:bg-[#F7444E] text-white font-black text-[11px] px-3.5 py-1.5 rounded-lg transition-all shadow-sm"
+                        >
+                          <span className="flex items-center justify-center gap-1.5"><FiSave /> שמור לקוח והמשך לתיקון</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">שם הלקוח / בית העסק</label>
+                    <input
+                      type="text"
+                      required
+                      value={repairCustName}
+                      onChange={(e) => setRepairCustName(e.target.value)}
+                      placeholder="הזן שם מלא"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">מספר טלפון</label>
+                    <input
+                      type="tel"
+                      required
+                      value={repairCustPhone}
+                      onChange={(e) => setRepairCustPhone(e.target.value)}
+                      placeholder="לדוגמא: 0521234567"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                {/* סוג הכלי - כפתורי בחירה מהירה */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-2">סוג הכלי</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRepairVehicleType('bicycle');
+                        setRepairVehicleModel(BICYCLE_MODELS[0]);
+                      }}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm border transition-all text-center flex items-center justify-center gap-2 ${
+                        repairVehicleType === 'bicycle'
+                          ? 'bg-[#002C3E] text-white shadow-md border-transparent'
+                          : 'bg-[#F4F9FA] text-[#002C3E]/70 border-[#002C3E]/10 hover:bg-[#E8F2F3]'
+                      }`}
+                    >
+                      🚲 אופניים חשמליים
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRepairVehicleType('scooter');
+                        setRepairVehicleModel(SCOOTER_MODELS[0]);
+                      }}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm border transition-all text-center flex items-center justify-center gap-2 ${
+                        repairVehicleType === 'scooter'
+                          ? 'bg-[#002C3E] text-white shadow-md border-transparent'
+                          : 'bg-[#F4F9FA] text-[#002C3E]/70 border-[#002C3E]/10 hover:bg-[#E8F2F3]'
+                      }`}
+                    >
+                      🛴 קורקינט חשמלי
+                    </button>
+                  </div>
+                </div>
+
+                {/* דגם הכלי - דרופדאון דינמי */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">דגם הכלי</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={repairVehicleModel}
+                      onChange={(e) => setRepairVehicleModel(e.target.value)}
+                      className="flex-1 bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-bold"
+                    >
+                      {(repairVehicleType === 'bicycle' ? bicycleModels : scooterModels).map((model) => (
+                        <option key={model} value={model}>{model}</option>
+                      ))}
+                      <option value="custom">-- דגם מותאם אישית (הקלד ידנית) --</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleAddNewModel}
+                      className="bg-[#002C3E] hover:bg-[#F7444E] text-white font-bold text-xs px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap animate-fade-in"
+                    >
+                      <FiPlus className="text-sm" /> הוסף דגם
+                    </button>
+                  </div>
+                </div>
+
+                {repairVehicleModel === 'custom' && (
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">שם דגם מותאם אישית</label>
+                    <input
+                      type="text"
+                      required
+                      value={repairCustomModel}
+                      onChange={(e) => setRepairCustomModel(e.target.value)}
+                      placeholder="הקלד את דגם הכלי"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">מה בוצע בכלי (תיאור העבודה)</label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={repairWhatWasDone}
+                    onChange={(e) => setRepairWhatWasDone(e.target.value)}
+                    placeholder="לדוגמא: הוחלפו רפידות בלם, כיוון ידיות הידראוליות וטעינת סוללה"
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">הערות נוספות</label>
+                  <input
+                    type="text"
+                    value={repairNotes}
+                    onChange={(e) => setRepairNotes(e.target.value)}
+                    placeholder="הערות לגבי הלקוח, הכלי או התשלום"
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">עלות התיקון (₪)</label>
+                    <input
+                      type="number"
+                      value={repairPrice}
+                      onChange={(e) => setRepairPrice(e.target.value)}
+                      placeholder="₪ סכום"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">סטטוס תיקון במעבדה</label>
+                    <select
+                      value={repairStatus}
+                      onChange={(e) => setRepairStatus(e.target.value)}
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-bold"
+                    >
+                      <option value="completed">הושלם (מוכן לאיסוף)</option>
+                      <option value="in_progress">בטיפול במעבדה</option>
+                      <option value="pending">בממתין לטיפול</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddRepairModal(false)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#002C3E] py-3.5 rounded-xl font-bold text-sm transition-all"
+                  >
+                    ביטול
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#F7444E] hover:bg-[#de3d46] text-white py-3.5 rounded-xl font-black text-sm transition-all shadow-md shadow-[#F7444E]/20"
+                  >
+                    <span className="flex items-center justify-center gap-1.5"><FiSave /> שמור תיקון מעבדה</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* --- MODAL: Edit Repair Dialog --- */}
+        {editingRepair !== null && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl border border-[#002C3E]/10 p-6 md:p-8 max-w-lg w-full text-right shadow-2xl space-y-5 overflow-y-auto max-h-[90vh]">
+              <div className="flex justify-between items-center border-b border-[#002C3E]/5 pb-3">
+                <button
+                  onClick={() => setEditingRepair(null)}
+                  className="text-[#002C3E]/40 hover:text-[#002C3E] text-lg font-bold"
+                >✕</button>
+                <h3 className="text-xl font-extrabold text-[#002C3E]">✏️ עריכת פרטי תיקון מעבדה</h3>
+              </div>
+
+              <form onSubmit={handleUpdateRepair} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">שם הלקוח / בית העסק</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingRepair.customer_name}
+                      onChange={(e) => setEditingRepair({ ...editingRepair, customer_name: e.target.value })}
+                      placeholder="הזן שם מלא"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">מספר טלפון</label>
+                    <input
+                      type="tel"
+                      required
+                      value={editingRepair.customer_phone}
+                      onChange={(e) => setEditingRepair({ ...editingRepair, customer_phone: e.target.value })}
+                      placeholder="מספר טלפון"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                {/* סוג הכלי - עריכה */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-2">סוג הכלי</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const defaultModel = BICYCLE_MODELS.includes(editingRepair.vehicle_model) ? editingRepair.vehicle_model : BICYCLE_MODELS[0];
+                        setEditingRepair({ ...editingRepair, vehicle_type: 'bicycle', vehicle_model: defaultModel });
+                      }}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm border transition-all text-center flex items-center justify-center gap-2 ${
+                        editingRepair.vehicle_type === 'bicycle'
+                          ? 'bg-[#002C3E] text-white shadow-md border-transparent'
+                          : 'bg-[#F4F9FA] text-[#002C3E]/70 border-[#002C3E]/10 hover:bg-[#E8F2F3]'
+                      }`}
+                    >
+                      🚲 אופניים חשמליים
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const defaultModel = SCOOTER_MODELS.includes(editingRepair.vehicle_model) ? editingRepair.vehicle_model : SCOOTER_MODELS[0];
+                        setEditingRepair({ ...editingRepair, vehicle_type: 'scooter', vehicle_model: defaultModel });
+                      }}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm border transition-all text-center flex items-center justify-center gap-2 ${
+                        editingRepair.vehicle_type === 'scooter'
+                          ? 'bg-[#002C3E] text-white shadow-md border-transparent'
+                          : 'bg-[#F4F9FA] text-[#002C3E]/70 border-[#002C3E]/10 hover:bg-[#E8F2F3]'
+                      }`}
+                    >
+                      🛴 קורקינט חשמלי
+                    </button>
+                  </div>
+                </div>
+
+                {/* דגם הכלי - עריכה */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">דגם הכלי</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={
+                        (editingRepair.vehicle_type === 'bicycle' ? bicycleModels : scooterModels).includes(editingRepair.vehicle_model)
+                          ? editingRepair.vehicle_model
+                          : 'custom'
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === 'custom') {
+                          setEditingRepair({ ...editingRepair, vehicle_model: '' });
+                        } else {
+                          setEditingRepair({ ...editingRepair, vehicle_model: val });
+                        }
+                      }}
+                      className="flex-1 bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-bold"
+                    >
+                      {(editingRepair.vehicle_type === 'bicycle' ? bicycleModels : scooterModels).map((model) => (
+                        <option key={model} value={model}>{model}</option>
+                      ))}
+                      <option value="custom">-- דגם אחר / מותאם אישית --</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleAddNewModelEdit}
+                      className="bg-[#002C3E] hover:bg-[#F7444E] text-white font-bold text-xs px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap animate-fade-in"
+                    >
+                      <FiPlus className="text-sm" /> הוסף דגם
+                    </button>
+                  </div>
+                </div>
+
+                {!(editingRepair.vehicle_type === 'bicycle' ? bicycleModels : scooterModels).includes(editingRepair.vehicle_model) && (
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">שם דגם מותאם אישית</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingRepair.vehicle_model}
+                      onChange={(e) => setEditingRepair({ ...editingRepair, vehicle_model: e.target.value })}
+                      placeholder="הקלד את דגם הכלי"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">מה בוצע בכלי (תיאור העבודה)</label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={editingRepair.what_was_done}
+                    onChange={(e) => setEditingRepair({ ...editingRepair, what_was_done: e.target.value })}
+                    placeholder="תיאור העבודה שבוצעה בפועל"
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">הערות נוספות</label>
+                  <input
+                    type="text"
+                    value={editingRepair.notes || ''}
+                    onChange={(e) => setEditingRepair({ ...editingRepair, notes: e.target.value })}
+                    placeholder="הערות לגבי הלקוח, הכלי או התשלום"
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">עלות התיקון (₪)</label>
+                    <input
+                      type="number"
+                      value={editingRepair.price || ''}
+                      onChange={(e) => setEditingRepair({ ...editingRepair, price: e.target.value })}
+                      placeholder="₪ סכום"
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#002C3E]/60 mb-1">סטטוס תיקון במעבדה</label>
+                    <select
+                      value={editingRepair.status}
+                      onChange={(e) => setEditingRepair({ ...editingRepair, status: e.target.value })}
+                      className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-bold"
+                    >
+                      <option value="completed">הושלם (מוכן לאיסוף)</option>
+                      <option value="in_progress">בטיפול במעבדה</option>
+                      <option value="pending">בממתין לטיפול</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingRepair(null)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#002C3E] py-3.5 rounded-xl font-bold text-sm transition-all"
+                  >
+                    ביטול
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#002C3E] hover:bg-[#F7444E] text-white py-3.5 rounded-xl font-black text-sm transition-all shadow-md shadow-[#002C3E]/20"
+                  >
+                    <span className="flex items-center justify-center gap-1.5"><FiSave /> עדכן תיקון</span>
                   </button>
                 </div>
               </form>

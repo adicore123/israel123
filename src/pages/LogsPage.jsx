@@ -340,7 +340,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                   {/* Status Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {/* Visits */}
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-[#002C3E]/5 text-right flex items-center justify-between">
+                    <div className="glass-card-light rounded-3xl p-6 shadow-sm border border-white/50 text-right flex items-center justify-between hover-tilt active-click smooth-interactive hover:shadow-md">
                       <div>
                         <span className="text-xs font-bold text-[#002C3E]/40 uppercase tracking-wider block mb-1">סך כניסות לאתר</span>
                         <span className="text-4xl font-black text-[#002C3E] tracking-tight">{totalVisits}</span>
@@ -351,7 +351,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                     </div>
 
                     {/* WhatsApp Clicks */}
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-[#002C3E]/5 text-right flex items-center justify-between">
+                    <div className="glass-card-light rounded-3xl p-6 shadow-sm border border-white/50 text-right flex items-center justify-between hover-tilt active-click smooth-interactive hover:shadow-md">
                       <div>
                         <span className="text-xs font-bold text-[#002C3E]/40 block mb-1">לחיצות וואטסאפ</span>
                         <span className="text-4xl font-black text-[#06d6a0] tracking-tight">{totalWhatsapp}</span>
@@ -362,7 +362,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                     </div>
 
                     {/* Phone Clicks */}
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-[#002C3E]/5 text-right flex items-center justify-between">
+                    <div className="glass-card-light rounded-3xl p-6 shadow-sm border border-white/50 text-right flex items-center justify-between hover-tilt active-click smooth-interactive hover:shadow-md">
                       <div>
                         <span className="text-xs font-bold text-[#002C3E]/40 block mb-1">לחיצות טלפון/התקשרות</span>
                         <span className="text-4xl font-black text-[#F7444E] tracking-tight">{totalPhone}</span>
@@ -389,7 +389,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                           </div>
                           <div className="w-full bg-[#F4F9FA] h-3.5 rounded-full overflow-hidden border border-[#002C3E]/5 shadow-inner">
                             <div 
-                              className="bg-[#06d6a0] h-full rounded-full transition-all duration-500 shadow-md"
+                              className="bg-[#06d6a0] h-full rounded-full transition-all duration-500 shadow-md animate-grow-bar"
                               style={{ width: `${Math.min(100, (totalWhatsapp / totalVisits) * 100)}%` }}
                             />
                           </div>
@@ -403,7 +403,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                           </div>
                           <div className="w-full bg-[#F4F9FA] h-3.5 rounded-full overflow-hidden border border-[#002C3E]/5 shadow-inner">
                             <div 
-                              className="bg-[#F7444E] h-full rounded-full transition-all duration-500 shadow-md"
+                              className="bg-[#F7444E] h-full rounded-full transition-all duration-500 shadow-md animate-grow-bar"
                               style={{ width: `${Math.min(100, (totalPhone / totalVisits) * 100)}%` }}
                             />
                           </div>
@@ -442,7 +442,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                           </thead>
                           <tbody className="divide-y divide-[#002C3E]/5 text-xs md:text-sm font-medium">
                             {filteredLogs.map((log) => (
-                              <tr key={log.id} className="hover:bg-[#F4F9FA]/50 transition-colors">
+                              <tr key={log.id} className="table-row-hover hover:bg-[#F4F9FA]/50 transition-colors">
                                 <td className="p-4">
                                   {log.event_type === 'visit' && (
                                     <span className="inline-flex items-center gap-1.5 bg-[#78BCC4]/15 text-[#227e8d] px-2.5 py-1 rounded-full font-bold">

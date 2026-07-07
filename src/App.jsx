@@ -157,9 +157,9 @@ export default function App() {
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           isMobileMenuOpen
-            ? 'bg-white shadow-md py-3'
+            ? 'bg-white/95 backdrop-blur-md shadow-md py-3'
             : isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-sm py-3'
+            ? 'bg-white/75 backdrop-blur-md shadow-sm border-b border-[#002C3E]/5 py-3'
             : 'bg-transparent py-5'
         }`}
       >
@@ -271,7 +271,7 @@ export default function App() {
 
             <h1
               id="hero-title"
-              className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.15] mb-6 md:mb-8 tracking-tight"
+              className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.15] mb-6 md:mb-8 tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]"
             >
               תיקון אופניים חשמליים וקורקינטים <br className="hidden md:block" />
               <span className="wow-underline inline-block mt-2 md:mt-3">אבחון מקצועי ותחזוקה</span>
@@ -285,14 +285,14 @@ export default function App() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
               <a
                 href="#contact"
-                className="w-full sm:w-auto bg-[#F7444E] text-white px-8 py-4 rounded-xl font-bold text-lg coral-glow flex items-center justify-center gap-3"
+                className="w-full sm:w-auto bg-[#F7444E] text-white px-8 py-4 rounded-xl font-bold text-lg coral-glow flex items-center justify-center gap-3 smooth-interactive active-click hover-tilt"
               >
                 <Icons.Phone className="w-5 h-5" />
                 חייגו עכשיו
               </a>
               <a
                 href="#contact"
-                className="w-full sm:w-auto bg-[#78BCC4] text-[#002C3E] px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-[#78BCC4]/30 hover:shadow-[#78BCC4]/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3"
+                className="w-full sm:w-auto bg-[#78BCC4] text-[#002C3E] px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-[#78BCC4]/30 hover:shadow-[#78BCC4]/50 flex items-center justify-center gap-3 smooth-interactive active-click hover-tilt"
               >
                 <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -301,7 +301,7 @@ export default function App() {
               </a>
               <a
                 href="#services"
-                className="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white hover:text-[#002C3E] px-8 py-4 rounded-xl font-bold text-lg transition-all text-center"
+                className="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white hover:text-[#002C3E] px-8 py-4 rounded-xl font-bold text-lg transition-all text-center smooth-interactive active-click hover-tilt"
               >
                 השירותים שלנו
               </a>
@@ -370,7 +370,7 @@ export default function App() {
               return (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl border border-[#002C3E]/5 p-6 md:p-8 shadow-sm flex items-start gap-4 text-right"
+                  className="bg-white rounded-2xl border border-[#002C3E]/5 p-6 md:p-8 shadow-sm flex items-start gap-4 text-right hover-tilt active-click smooth-interactive hover:shadow-md hover:border-[#78BCC4]/20"
                 >
                   <div
                     className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${serviceToneClass[card.iconVariant]}`}
@@ -411,7 +411,7 @@ export default function App() {
               return (
                 <div
                   key={i}
-                  className="bg-white/5 border border-white/5 p-5 md:p-6 rounded-xl hover:bg-[#78BCC4]/5 hover:border-[#F7444E]/30 transition-all duration-300 flex items-start gap-4"
+                  className="bg-white/5 border border-white/10 p-5 md:p-6 rounded-xl hover:bg-white/[0.08] hover:border-[#78BCC4]/30 transition-all duration-300 flex items-start gap-4 hover-tilt active-click smooth-interactive hover:shadow-lg hover:shadow-black/10"
                 >
                   <div
                     className={`w-9 h-9 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${serviceToneClass[service.tone]}`}
@@ -433,7 +433,7 @@ export default function App() {
             <h2 className="text-3xl md:text-5xl font-black text-[#002C3E] mb-6">שירות לפרטיים ולעסקים</h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-            <div className="bg-[#F7F8F3] p-8 md:p-12 rounded-2xl border border-[#002C3E]/5 flex flex-col justify-center">
+            <div className="bg-[#F7F8F3] p-8 md:p-12 rounded-2xl border border-[#002C3E]/5 flex flex-col justify-center hover-tilt active-click smooth-interactive hover:shadow-md">
               <div className="w-14 h-14 bg-[#78BCC4] text-[#002C3E] rounded-xl flex items-center justify-center mb-6 shadow-sm">
                 <Icons.Shield className="w-7 h-7" />
               </div>
@@ -445,7 +445,7 @@ export default function App() {
                 פתרון נוח, מהיר ומקצועי – בלי צורך לשנע את הכלי. הטכנאי מגיע עד אליכם.
               </p>
             </div>
-            <div className="bg-[#002C3E] p-8 md:p-12 rounded-2xl flex flex-col justify-center shadow-lg relative overflow-hidden">
+            <div className="bg-[#002C3E] p-8 md:p-12 rounded-2xl flex flex-col justify-center shadow-lg relative overflow-hidden hover-tilt active-click smooth-interactive hover:shadow-2xl">
               <div className="w-14 h-14 bg-[#F7444E] text-white rounded-xl flex items-center justify-center mb-6 shadow-md coral-glow relative z-10">
                 <Icons.Wrench className="w-7 h-7" />
               </div>
