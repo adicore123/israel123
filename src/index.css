@@ -36,15 +36,17 @@
   transform: translateY(-2px);
 }
 
-/* ===== מרקיז כללי (לשימוש עתידי) ===== */
+/* ===== מרקיז ===== */
 @keyframes marquee {
-  to { transform: translateX(-50%); }
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
 }
 .animate-marquee {
   display: flex;
   width: max-content;
   animation: marquee 40s linear infinite;
 }
+
 
 /* ===== למה לבחור בנו — אנימציות (לא לשלב עם Tailwind opacity-0 על אותו אלמנט) ===== */
 @keyframes why-us-row {

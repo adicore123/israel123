@@ -2,22 +2,22 @@
 <!-- החלף את https://www.example.com בדומיין האמיתי בכל תגית <loc> וב-robots.txt -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.example.com/</loc>
+    <loc>https://www.e-tech-israel.co.il/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.example.com/terms</loc>
+    <loc>https://www.e-tech-israel.co.il/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.example.com/privacy</loc>
+    <loc>https://www.e-tech-israel.co.il/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.example.com/accessibility</loc>
+    <loc>https://www.e-tech-israel.co.il/accessibility</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

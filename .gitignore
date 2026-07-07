@@ -3,6 +3,4 @@ dist/
 .env
 .env.local
 .opencode
-*.log
-
-.vercel
+tools-not-to-git/
