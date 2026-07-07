@@ -7,6 +7,10 @@ import express from 'express';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function prerender() {
+  if (process.env.VERCEL) {
+    console.log('Vercel environment detected. Skipping Puppeteer prerender to avoid browser launch issues.');
+    return;
+  }
   const app = express();
   
   // Serve static files from dist
