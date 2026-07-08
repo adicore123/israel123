@@ -557,6 +557,57 @@ export default function ServiceDashboardPage() {
     setShowRepairInlineAddCust(false);
   };
 
+  // הוספת לקוח פרטי מהיר (שם + טלפון בלבד) ישירות מטופס התיקון
+  const handleQuickAddPrivateCustomer = async () => {
+    const name = repairCustName.trim();
+    const phone = repairCustPhone.trim();
+    if (!name || !phone) return;
+
+    // אם כבר קיים לקוח עם אותו טלפון במאגר - נקשר את התיקון אליו במקום ליצור כפילות
+    const existing = customers.find((c) => c.phone === phone);
+    if (existing) {
+      setRepairCustId(existing.id);
+      setRepairCustName(`${existing.shop_name} (${existing.owner_name})`);
+      setRepairCustPhone(existing.phone);
+      setRepairCustAddress(existing.address);
+      return;
+    }
+
+    const newCustomer = {
+      shop_name: name,
+      owner_name: name,
+      phone,
+      address: '',
+      created_at: new Date().toISOString()
+    };
+
+    let createdCust = null;
+    let updatedCustList = [];
+
+    if (isUsingSupabase) {
+      try {
+        const { data, error } = await supabase
+          .from('customers')
+          .insert([newCustomer])
+          .select();
+
+        if (error) throw error;
+        createdCust = data[0];
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      } catch (err) {
+        console.error('Supabase private customer insert failed:', err.message);
+        createdCust = { id: Date.now(), ...newCustomer };
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      }
+    } else {
+      createdCust = { id: Date.now(), ...newCustomer };
+      updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+    }
+
+    saveCustomersState(updatedCustList);
+    setRepairCustId(createdCust.id);
+  };
+
   // שינוי בחירת לקוח בתיקון
   const handleSelectCustomerChangeRepair = (id) => {
     setRepairCustId(id);
@@ -3099,7 +3150,10 @@ CREATE POLICY "Allow anonymous read and write" ON public.repairs
                       type="text"
                       required
                       value={repairCustName}
-                      onChange={(e) => setRepairCustName(e.target.value)}
+                      onChange={(e) => {
+                        setRepairCustName(e.target.value);
+                        if (repairCustId) setRepairCustId('');
+                      }}
                       placeholder="הזן שם מלא"
                       className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
                     />
@@ -3110,12 +3164,31 @@ CREATE POLICY "Allow anonymous read and write" ON public.repairs
                       type="tel"
                       required
                       value={repairCustPhone}
-                      onChange={(e) => setRepairCustPhone(e.target.value)}
+                      onChange={(e) => {
+                        setRepairCustPhone(e.target.value);
+                        if (repairCustId) setRepairCustId('');
+                      }}
                       placeholder="לדוגמא: 0521234567"
                       className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E]"
                       dir="ltr"
                     />
                   </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <p className="text-[11px] font-semibold text-[#002C3E]/50">
+                    {repairCustId
+                      ? '✓ הלקוח מקושר למאגר הלקוחות'
+                      : 'לקוח פרטי? שמרו אותו למאגר כדי לשייך אליו תיקונים נוספים בעתיד'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleQuickAddPrivateCustomer}
+                    disabled={!repairCustName.trim() || !repairCustPhone.trim() || !!repairCustId}
+                    className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/30 disabled:cursor-not-allowed text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-500/10 flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                  >
+                    <FiPlus className="text-sm" /> {repairCustId ? 'לקוח מקושר ✓' : 'הוסף לקוח'}
+                  </button>
                 </div>
 
                 {/* סוג הכלי - כפתורי בחירה מהירה */}
