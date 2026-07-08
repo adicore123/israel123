@@ -5,7 +5,7 @@ import AccessibilityMenu from '../components/AccessibilityMenu.jsx';
 import { supabase } from '../lib/supabase.js';
 import { FaWaze, FaWhatsapp } from 'react-icons/fa';
 import CatalogAdminPanel from '../components/CatalogAdminPanel.jsx';
-import { FiShoppingBag, FiUnlock, FiMenu, FiTrash2, FiPlus, FiSettings, FiTool, FiCalendar, FiBriefcase, FiUser, FiClock, FiAlertCircle, FiSave, FiDollarSign, FiClipboard, FiUsers, FiWifi, FiHome, FiLogOut, FiLock, FiDatabase, FiInfo, FiSearch, FiPhone, FiMapPin, FiCheckCircle, FiEdit2, FiActivity } from 'react-icons/fi';
+import { FiShoppingBag, FiUnlock, FiMenu, FiTrash2, FiPlus, FiSettings, FiTool, FiCalendar, FiBriefcase, FiUser, FiClock, FiAlertCircle, FiSave, FiDollarSign, FiClipboard, FiUsers, FiWifi, FiHome, FiLogOut, FiLock, FiDatabase, FiInfo, FiSearch, FiPhone, FiMapPin, FiCheckCircle, FiEdit2, FiActivity, FiShield } from 'react-icons/fi';
 
 
 // סיסמת כניסה: admin123
@@ -109,6 +109,33 @@ const MOCK_REPAIRS = [
     price: '380',
     status: 'completed',
     created_at: new Date(Date.now() - 3600000 * 24).toISOString()
+  }
+];
+
+const MOCK_WARRANTIES = [
+  {
+    id: 301,
+    uuid: '550e8400-e29b-41d4-a716-446655440000',
+    created_at: new Date(Date.now() - 3600000 * 24 * 10).toISOString(),
+    customer_name: 'יוסי כהן',
+    customer_phone: '0521234567',
+    vehicle_description: 'Teverun Fighter - החלפת מנוע ושיפוץ בקר',
+    duration_months: 6,
+    start_date: new Date(Date.now() - 3600000 * 24 * 10).toISOString().split('T')[0],
+    end_date: new Date(new Date(Date.now() - 3600000 * 24 * 10).setMonth(new Date(Date.now() - 3600000 * 24 * 10).getMonth() + 6)).toISOString().split('T')[0],
+    notes: 'האחריות מכסה את המנוע והבקר בלבד.'
+  },
+  {
+    id: 302,
+    uuid: 'd3b07384-d113-4956-a5cc-96e0821d3f57',
+    created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    customer_name: 'שירה לוי',
+    customer_phone: '0549876543',
+    vehicle_description: 'Nami Burn-e 2 - סוללה חדשה 72V',
+    duration_months: 12,
+    start_date: new Date(Date.now() - 3600000 * 24 * 5).toISOString().split('T')[0],
+    end_date: new Date(new Date(Date.now() - 3600000 * 24 * 5).setMonth(new Date(Date.now() - 3600000 * 24 * 5).getMonth() + 12)).toISOString().split('T')[0],
+    notes: 'אחריות על קיבולת הסוללה והתאים.'
   }
 ];
 
@@ -225,6 +252,23 @@ export default function ServiceDashboardPage() {
   // סנכרון עם Supabase
   const [isUsingSupabase, setIsUsingSupabase] = useState(false);
   const [showSqlGuide, setShowSqlGuide] = useState(false);
+
+  // ניהול תעודות אחריות
+  const [warranties, setWarranties] = useState([]);
+  const [warrantySearchQuery, setWarrantySearchQuery] = useState('');
+  const [showAddWarrantyModal, setShowAddWarrantyModal] = useState(false);
+  const [warrantyCustomerName, setWarrantyCustomerName] = useState('');
+  const [warrantyCustomerPhone, setWarrantyCustomerPhone] = useState('');
+  const [warrantyVehicleDesc, setWarrantyVehicleDesc] = useState('');
+  const [warrantyDuration, setWarrantyDuration] = useState(3); // 3, 6, 12
+  const [warrantyStartDate, setWarrantyStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [warrantyNotes, setWarrantyNotes] = useState('');
+  const [warrantyCustId, setWarrantyCustId] = useState('');
+  const [showWarrantyInlineAddCust, setShowWarrantyInlineAddCust] = useState(false);
+  const [warrInlineShopName, setWarrInlineShopName] = useState('');
+  const [warrInlineOwnerName, setWarrInlineOwnerName] = useState('');
+  const [warrInlinePhone, setWarrInlinePhone] = useState('');
+  const [warrInlineAddress, setWarrInlineAddress] = useState('');
 
   // סיידבאר והגדרות
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -348,6 +392,21 @@ export default function ServiceDashboardPage() {
           loadCustomersFromLocalStorage();
         }
 
+        // טעינת תעודות אחריות מ-Supabase
+        try {
+          const { data: warrData, error: warrError } = await supabase
+            .from('warranties')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!warrError && warrData) {
+            setWarranties(warrData);
+          } else {
+            loadWarrantiesFromLocalStorage();
+          }
+        } catch {
+          loadWarrantiesFromLocalStorage();
+        }
+
         setIsUsingSupabase(true);
       } catch (err) {
         console.log('Supabase service_calls table not ready. Falling back to localStorage.', err.message);
@@ -367,6 +426,7 @@ export default function ServiceDashboardPage() {
       }
       loadRepairsFromLocalStorage();
       loadCustomersFromLocalStorage();
+      loadWarrantiesFromLocalStorage();
     };
 
     const loadRepairsFromLocalStorage = () => {
@@ -389,6 +449,16 @@ export default function ServiceDashboardPage() {
       }
     };
 
+    const loadWarrantiesFromLocalStorage = () => {
+      const localWarr = localStorage.getItem('israelfix_warranties');
+      if (localWarr) {
+        setWarranties(JSON.parse(localWarr));
+      } else {
+        localStorage.setItem('israelfix_warranties', JSON.stringify(MOCK_WARRANTIES));
+        setWarranties(MOCK_WARRANTIES);
+      }
+    };
+
     loadFromSupabase();
   }, [authenticated]);
 
@@ -402,6 +472,12 @@ export default function ServiceDashboardPage() {
   const saveCustomersState = async (updatedCustomers) => {
     setCustomers(updatedCustomers);
     localStorage.setItem('israelfix_customers', JSON.stringify(updatedCustomers));
+  };
+
+  // שמירה ועדכון תעודות אחריות
+  const saveWarrantiesState = async (updatedWarranties) => {
+    setWarranties(updatedWarranties);
+    localStorage.setItem('israelfix_warranties', JSON.stringify(updatedWarranties));
   };
 
   // שמירה ועדכון תיקונים
@@ -968,6 +1044,215 @@ export default function ServiceDashboardPage() {
     setTotalPrice('');
   };
 
+  // שינוי בחירת לקוח בתעודת אחריות
+  const handleSelectCustomerChangeWarranty = (id) => {
+    setWarrantyCustId(id);
+    if (!id) {
+      setWarrantyCustomerName('');
+      setWarrantyCustomerPhone('');
+      return;
+    }
+    const found = customers.find(c => String(c.id) === String(id));
+    if (found) {
+      setWarrantyCustomerName(found.owner_name ? `${found.shop_name} (${found.owner_name})` : found.shop_name);
+      setWarrantyCustomerPhone(found.phone);
+    }
+  };
+
+  // יצירת לקוח מהיר מתוך תעודת אחריות
+  const handleCreateCustomerInlineWarranty = async (e) => {
+    e.preventDefault();
+    if (!warrInlineShopName || !warrInlineOwnerName || !warrInlinePhone || !warrInlineAddress) {
+      alert('אנא מלא את כל השדות להוספת לקוח');
+      return;
+    }
+
+    const newCustomer = {
+      shop_name: warrInlineShopName,
+      owner_name: warrInlineOwnerName,
+      phone: warrInlinePhone,
+      address: warrInlineAddress,
+      created_at: new Date().toISOString()
+    };
+
+    let createdCust = null;
+    let updatedCustList = [];
+
+    if (isUsingSupabase) {
+      try {
+        const { data, error } = await supabase
+          .from('customers')
+          .insert([newCustomer])
+          .select();
+
+        if (error) throw error;
+        createdCust = data[0];
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      } catch (err) {
+        console.error('Supabase customer insert failed:', err.message);
+        createdCust = { id: Date.now(), ...newCustomer };
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      }
+    } else {
+      createdCust = { id: Date.now(), ...newCustomer };
+      updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+    }
+
+    saveCustomersState(updatedCustList);
+
+    // מילוי אוטומטי בטופס תעודת האחריות
+    setWarrantyCustId(createdCust.id);
+    setWarrantyCustomerName(createdCust.owner_name ? `${createdCust.shop_name} (${createdCust.owner_name})` : createdCust.shop_name);
+    setWarrantyCustomerPhone(createdCust.phone);
+
+    // איפוס שדות
+    setWarrInlineShopName('');
+    setWarrInlineOwnerName('');
+    setWarrInlinePhone('');
+    setWarrInlineAddress('');
+    setShowWarrantyInlineAddCust(false);
+  };
+
+  // הוספת לקוח פרטי מהיר (שם + טלפון בלבד) ישירות מטופס תעודת האחריות
+  const handleQuickAddPrivateCustomerWarranty = async () => {
+    const name = warrantyCustomerName.trim();
+    const phone = warrantyCustomerPhone.trim();
+    if (!name || !phone) return;
+
+    // אם כבר קיים לקוח עם אותו טלפון במאגר - נקשר את התעודה אליו במקום ליצור כפילות
+    const existing = customers.find((c) => c.phone === phone);
+    if (existing) {
+      setWarrantyCustId(existing.id);
+      setWarrantyCustomerName(existing.owner_name ? `${existing.shop_name} (${existing.owner_name})` : existing.shop_name);
+      setWarrantyCustomerPhone(existing.phone);
+      return;
+    }
+
+    const newCustomer = {
+      shop_name: name,
+      owner_name: name,
+      phone,
+      address: '',
+      created_at: new Date().toISOString()
+    };
+
+    let createdCust = null;
+    let updatedCustList = [];
+
+    if (isUsingSupabase) {
+      try {
+        const { data, error } = await supabase
+          .from('customers')
+          .insert([newCustomer])
+          .select();
+
+        if (error) throw error;
+        createdCust = data[0];
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      } catch (err) {
+        console.error('Supabase customer insert failed:', err.message);
+        createdCust = { id: Date.now(), ...newCustomer };
+        updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+      }
+    } else {
+      createdCust = { id: Date.now(), ...newCustomer };
+      updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
+    }
+
+    saveCustomersState(updatedCustList);
+
+    setWarrantyCustId(createdCust.id);
+    setWarrantyCustomerName(createdCust.owner_name ? `${createdCust.shop_name} (${createdCust.owner_name})` : createdCust.shop_name);
+    setWarrantyCustomerPhone(createdCust.phone);
+  };
+
+  // הוספת תעודת אחריות חדשה
+  const handleAddWarranty = async (e) => {
+    e.preventDefault();
+    if (!warrantyCustomerName.trim()) {
+      alert('אנא הזן שם לקוח');
+      return;
+    }
+    if (!warrantyVehicleDesc.trim()) {
+      alert('אנא הזן תיאור מוצר / תיקון');
+      return;
+    }
+
+    // Calculate end date based on start date + duration months
+    const start = new Date(warrantyStartDate);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + parseInt(warrantyDuration, 10));
+    const endDateStr = end.toISOString().split('T')[0];
+
+    const tempUuid = crypto.randomUUID();
+
+    const newWarranty = {
+      customer_id: warrantyCustId ? parseInt(warrantyCustId, 10) : null,
+      customer_name: warrantyCustomerName,
+      customer_phone: warrantyCustomerPhone,
+      vehicle_description: warrantyVehicleDesc,
+      duration_months: parseInt(warrantyDuration, 10),
+      start_date: warrantyStartDate,
+      end_date: endDateStr,
+      notes: warrantyNotes,
+      uuid: tempUuid
+    };
+
+    let updatedWarranties = [];
+
+    if (isUsingSupabase) {
+      try {
+        const { data, error } = await supabase
+          .from('warranties')
+          .insert([newWarranty])
+          .select();
+
+        if (error) throw error;
+        updatedWarranties = [data[0], ...warranties];
+      } catch (err) {
+        console.error('Supabase warranty insert failed, adding to local instead:', err.message);
+        const localWarr = { id: Date.now(), created_at: new Date().toISOString(), ...newWarranty };
+        updatedWarranties = [localWarr, ...warranties];
+      }
+    } else {
+      const localWarr = { id: Date.now(), created_at: new Date().toISOString(), ...newWarranty };
+      updatedWarranties = [localWarr, ...warranties];
+    }
+
+    saveWarrantiesState(updatedWarranties);
+
+    // Reset form states
+    setWarrantyCustId('');
+    setWarrantyCustomerName('');
+    setWarrantyCustomerPhone('');
+    setWarrantyVehicleDesc('');
+    setWarrantyDuration(3);
+    setWarrantyStartDate(new Date().toISOString().split('T')[0]);
+    setWarrantyNotes('');
+    setShowAddWarrantyModal(false);
+
+    alert('תעודת האחריות נוצרה בהצלחה!');
+  };
+
+  // מחיקת תעודת אחריות
+  const handleDeleteWarranty = async (id, uuid) => {
+    if (!window.confirm('האם אתה בטוח שברצונך למחוק תעודת אחריות זו?')) return;
+
+    let updatedWarranties = warranties.filter(w => w.id !== id && w.uuid !== uuid);
+    saveWarrantiesState(updatedWarranties);
+
+    if (isUsingSupabase) {
+      try {
+        await supabase
+          .from('warranties')
+          .delete()
+          .eq('id', id);
+      } catch (err) {
+        console.error('Supabase warranty delete error:', err.message);
+      }
+    }
+  };
+
   // 4. מחיקת קריאה
   const handleDeleteCall = async (id) => {
     if (!window.confirm('האם אתה בטוח שברצונך למחוק את קריאת השירות הזו?')) return;
@@ -1108,6 +1393,25 @@ CREATE TABLE IF NOT EXISTS public.repairs (
 ALTER TABLE public.repairs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow anonymous read and write" ON public.repairs 
     FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- 4. טבלת תעודות אחריות
+CREATE TABLE IF NOT EXISTS public.warranties (
+    id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    uuid uuid DEFAULT gen_random_uuid() NOT NULL UNIQUE,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    customer_id bigint REFERENCES public.customers(id) ON DELETE SET NULL,
+    customer_name text NOT NULL,
+    customer_phone text,
+    vehicle_description text NOT NULL,
+    duration_months integer NOT NULL,
+    start_date date DEFAULT CURRENT_DATE NOT NULL,
+    end_date date NOT NULL,
+    notes text
+);
+
+ALTER TABLE public.warranties ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow anonymous read and write" ON public.warranties 
+    FOR ALL TO anon USING (true) WITH CHECK (true);
   `.trim();
 
   if (!authenticated) {
@@ -1188,6 +1492,20 @@ CREATE POLICY "Allow anonymous read and write" ON public.repairs
                 <div className="flex items-center gap-2.5">
                   <FiTool className="text-lg" />
                   <span>ניהול תיקונים</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('warranties')}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-black transition-all duration-200 ${
+                  activeTab === 'warranties'
+                    ? 'bg-[#78BCC4] text-[#002C3E] shadow-lg shadow-[#78BCC4]/20'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FiShield className="text-lg" />
+                  <span>תעודות אחריות</span>
                 </div>
               </button>
 
@@ -1350,6 +1668,23 @@ CREATE POLICY "Allow anonymous read and write" ON public.repairs
                 <div className="flex items-center gap-2.5">
                   <FiTool className="text-xl" />
                   <span>ניהול תיקונים</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('warranties');
+                  setIsMobileSidebarOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-black transition-all duration-200 ${
+                  activeTab === 'warranties'
+                    ? 'bg-[#78BCC4] text-[#002C3E]'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FiShield className="text-xl" />
+                  <span>תעודות אחריות</span>
                 </div>
               </button>
 
@@ -1747,6 +2082,137 @@ CREATE POLICY "Allow anonymous read and write" ON public.repairs
                   ) : (
                     <div className="col-span-full bg-white rounded-3xl border border-[#002C3E]/5 py-12 text-center text-[#002C3E]/30 text-sm font-semibold">
                       לא נמצאו לקוחות במאגר העונים לחיפוש
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* --- 2.2 WARRANTIES WORKSPACE --- */}
+            {activeTab === 'warranties' && (
+              <div className="space-y-6 animate-fade-in" data-aos="fade-up">
+                {/* --- Warranties Action Panel --- */}
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-[#002C3E]/5 rounded-3xl p-5 shadow-sm">
+                  <button
+                    onClick={() => setShowAddWarrantyModal(true)}
+                    className="w-full sm:w-auto bg-[#F7444E] hover:bg-[#de3d46] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-lg shadow-[#F7444E]/25 transition-all flex items-center justify-center gap-2 smooth-interactive hover-tilt active-click"
+                  >
+                    <span className="flex items-center justify-center gap-2"><FiPlus className="text-xl"/> תעודת אחריות חדשה</span>
+                  </button>
+
+                  <div className="w-full sm:max-w-md relative">
+                    <input
+                      type="text"
+                      value={warrantySearchQuery}
+                      onChange={(e) => setWarrantySearchQuery(e.target.value)}
+                      placeholder="חפש לפי שם לקוח, טלפון או תיאור תיקון..."
+                      className="w-full bg-[#F4F9FA] px-12 py-3.5 rounded-2xl border border-[#002C3E]/5 outline-none focus:border-[#78BCC4] transition-all text-[#002C3E] text-right font-medium text-sm"
+                    />
+                    <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-[#002C3E]/40 text-lg" />
+                  </div>
+                </div>
+
+                {/* --- Warranties Grid/List --- */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {warranties.filter(w => {
+                    const query = warrantySearchQuery.trim().toLowerCase();
+                    if (!query) return true;
+                    return (
+                      (w.customer_name && w.customer_name.toLowerCase().includes(query)) ||
+                      (w.customer_phone && w.customer_phone.toLowerCase().includes(query)) ||
+                      (w.vehicle_description && w.vehicle_description.toLowerCase().includes(query))
+                    );
+                  }).length > 0 ? (
+                    warranties.filter(w => {
+                      const query = warrantySearchQuery.trim().toLowerCase();
+                      if (!query) return true;
+                      return (
+                        (w.customer_name && w.customer_name.toLowerCase().includes(query)) ||
+                        (w.customer_phone && w.customer_phone.toLowerCase().includes(query)) ||
+                        (w.vehicle_description && w.vehicle_description.toLowerCase().includes(query))
+                      );
+                    }).map((w) => {
+                      const isWarrActive = new Date(w.end_date) >= new Date(new Date().setHours(0, 0, 0, 0));
+                      const shareLink = window.location.origin + '/warranty/' + (w.uuid || w.id);
+                      const whatsappText = `היי ${w.customer_name}, מצורפת תעודת האחריות הדיגיטלית שלך ממעבדת israelfix עבור: ${w.vehicle_description}. קישור לתעודה: ${shareLink}`;
+                      
+                      return (
+                        <div
+                          key={w.id}
+                          className="bg-white rounded-3xl border border-[#002C3E]/5 p-6 shadow-sm space-y-4 hover-tilt smooth-interactive hover:shadow-md relative overflow-hidden"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-lg font-black text-[#002C3E]">{w.customer_name}</h3>
+                              <p className="text-xs text-[#002C3E]/50 font-bold">{w.customer_phone || 'אין טלפון'}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black ${
+                              isWarrActive
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                : 'bg-[#FEF2F2] text-[#F7444E] border border-[#F7444E]/10'
+                            }`}>
+                              {isWarrActive ? 'בתוקף' : 'פג תוקף'}
+                            </span>
+                          </div>
+
+                          <div className="text-sm font-semibold text-[#002C3E]/80 border-t border-b border-[#002C3E]/5 py-3 space-y-1">
+                            <p><span className="text-xs text-[#002C3E]/40 font-medium">תיאור:</span> {w.vehicle_description}</p>
+                            <p><span className="text-xs text-[#002C3E]/40 font-medium">תקופה:</span> {w.duration_months} חודשים</p>
+                            <p><span className="text-xs text-[#002C3E]/40 font-medium">סיום:</span> {new Date(w.end_date).toLocaleDateString('he-IL')}</p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 pt-2">
+                            {/* פתיחת תעודה */}
+                            <a
+                              href={`/warranty/${w.uuid || w.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-[#002C3E]/5 hover:bg-[#002C3E]/10 text-[#002C3E] text-xs font-black px-3 py-2 rounded-xl transition-all flex-1 text-center"
+                            >
+                              הצג תעודה
+                            </a>
+                            
+                            {/* העתקת קישור */}
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(shareLink);
+                                alert('הקישור לתעודת האחריות הועתק ללוח!');
+                              }}
+                              className="bg-[#78BCC4]/10 hover:bg-[#78BCC4]/20 text-[#2a8fa0] text-xs font-black px-3 py-2 rounded-xl transition-all"
+                              title="העתק קישור"
+                            >
+                              העתק קישור
+                            </button>
+
+                            {/* שליחה בווטסאפ */}
+                            {w.customer_phone && (
+                              <a
+                                href={`https://wa.me/972${w.customer_phone.replace(/^0/, '')}?text=${encodeURIComponent(whatsappText)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-black px-3 py-2 rounded-xl transition-all flex items-center justify-center gap-1"
+                                title="שלח ב-WhatsApp"
+                              >
+                                <FaWhatsapp className="text-sm" />
+                                <span>שתף</span>
+                              </a>
+                            )}
+
+                            {/* מחיקה */}
+                            <button
+                              onClick={() => handleDeleteWarranty(w.id, w.uuid)}
+                              className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-xl transition-all mr-auto"
+                              title="מחק תעודה"
+                            >
+                              <FiTrash2 className="text-base" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="col-span-full bg-white rounded-3xl border border-[#002C3E]/5 py-12 text-center text-[#002C3E]/30 text-sm font-semibold">
+                      לא נמצאו תעודות אחריות העונות לחיפוש
                     </div>
                   )}
                 </div>
@@ -3009,6 +3475,248 @@ CREATE POLICY "Allow anonymous read and write" ON public.repairs
                     className="flex-1 bg-[#002C3E] hover:bg-[#F7444E] text-white py-3.5 rounded-xl font-black text-sm transition-all shadow-md shadow-[#002C3E]/20"
                   >
                     <span className="flex items-center justify-center gap-1.5"><FiSave /> עדכן לקוח</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* --- MODAL: Add New Warranty Dialog --- */}
+        {showAddWarrantyModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl border border-[#002C3E]/10 p-6 md:p-8 max-w-lg w-full text-right shadow-2xl space-y-5 overflow-y-auto max-h-[90vh]" dir="rtl">
+              <div className="flex justify-between items-center border-b border-[#002C3E]/5 pb-3">
+                <button
+                  onClick={() => setShowAddWarrantyModal(false)}
+                  className="text-[#002C3E]/40 hover:text-[#002C3E] text-lg font-bold"
+                >✕</button>
+                <h3 className="text-xl font-extrabold text-[#002C3E] flex items-center gap-2"><FiShield /> יצירת תעודת אחריות חדשה</h3>
+              </div>
+
+              <form onSubmit={handleAddWarranty} className="space-y-4">
+                {/* בחירת לקוח מהמאגר או הוספה מהירה */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-bold text-[#002C3E]/60 flex items-center gap-1.5"><FiUser /> בחירת לקוח מהמאגר (אופציונלי)</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowWarrantyInlineAddCust(!showWarrantyInlineAddCust);
+                        if (!showWarrantyInlineAddCust) {
+                          setWarrantyCustId('');
+                          setWarrantyCustomerName('');
+                          setWarrantyCustomerPhone('');
+                        }
+                      }}
+                      className="text-xs font-bold text-[#78BCC4] hover:text-[#2a8fa0] transition-colors"
+                    >
+                      {showWarrantyInlineAddCust ? '✕ ביטול הוספה מהירה' : '➕ הוסף לקוח חדש למאגר'}
+                    </button>
+                  </div>
+
+                  {!showWarrantyInlineAddCust ? (
+                    <div className="space-y-4">
+                      <select
+                        value={warrantyCustId}
+                        onChange={(e) => handleSelectCustomerChangeWarranty(e.target.value)}
+                        className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] focus:bg-white text-sm text-[#002C3E] font-bold"
+                      >
+                        <option value="">-- הזן פרטים ידנית או בחר מהמאגר --</option>
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.shop_name} ({c.owner_name})
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* שם לקוח (שדה פתוח - טקסט חופשי) */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#002C3E]/60 mb-1.5">שם לקוח *</label>
+                        <input
+                          type="text"
+                          required
+                          value={warrantyCustomerName}
+                          onChange={(e) => {
+                            setWarrantyCustomerName(e.target.value);
+                            if (warrantyCustId) setWarrantyCustId('');
+                          }}
+                          placeholder="הקלד שם לקוח מלא..."
+                          className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/10 outline-none focus:border-[#78BCC4] transition-all text-sm font-medium text-[#002C3E]"
+                        />
+                      </div>
+
+                      {/* טלפון לקוח */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#002C3E]/60 mb-1.5">מספר טלפון (עבור שיתוף קישור ב-WhatsApp)</label>
+                        <input
+                          type="tel"
+                          value={warrantyCustomerPhone}
+                          onChange={(e) => {
+                            setWarrantyCustomerPhone(e.target.value);
+                            if (warrantyCustId) setWarrantyCustId('');
+                          }}
+                          placeholder="לדוגמה: 0545050609"
+                          className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/10 outline-none focus:border-[#78BCC4] transition-all text-sm font-medium text-[#002C3E] ltr:text-right"
+                        />
+                      </div>
+
+                      {/* הוספת לקוח פרטי מהירה למאגר */}
+                      <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
+                        <p className="text-[11px] font-semibold text-[#002C3E]/50">
+                          {warrantyCustId
+                            ? '✓ הלקוח מקושר למאגר הלקוחות'
+                            : 'לקוח פרטי? שמור אותו במאגר כדי לשייך אליו תעודות בעתיד'}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleQuickAddPrivateCustomerWarranty}
+                          disabled={!warrantyCustomerName.trim() || !warrantyCustomerPhone.trim() || !!warrantyCustId}
+                          className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/30 disabled:cursor-not-allowed text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-500/10 flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                        >
+                          <FiPlus className="text-sm" /> {warrantyCustId ? 'לקוח מקושר ✓' : 'הוסף לקוח'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-[#EEF6F8] p-4 rounded-2xl border border-[#78BCC4]/20 space-y-3 mt-1">
+                      <div className="text-xs font-bold text-[#002C3E] border-b border-[#002C3E]/10 pb-1.5 flex items-center gap-1">
+                        <span className="flex items-center gap-1.5"><FiUser /> הוספת לקוח מהירה למאגר</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">שם חנות / בית עסק</label>
+                          <input
+                            type="text"
+                            value={warrInlineShopName}
+                            onChange={(e) => setWarrInlineShopName(e.target.value)}
+                            placeholder="לדוגמא: אופני דניאל"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">שם בעל העסק</label>
+                          <input
+                            type="text"
+                            value={warrInlineOwnerName}
+                            onChange={(e) => setWarrInlineOwnerName(e.target.value)}
+                            placeholder="דניאל כהן"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">מספר טלפון</label>
+                          <input
+                            type="text"
+                            value={warrInlinePhone}
+                            onChange={(e) => setWarrInlinePhone(e.target.value)}
+                            placeholder="0521234567"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-[#002C3E]/60 mb-0.5">כתובת</label>
+                          <input
+                            type="text"
+                            value={warrInlineAddress}
+                            onChange={(e) => setWarrInlineAddress(e.target.value)}
+                            placeholder="הרצל 40, ראשון לציון"
+                            className="w-full bg-white px-3 py-2 rounded-lg border border-[#002C3E]/15 outline-none focus:border-[#78BCC4] text-xs text-[#002C3E]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 justify-end pt-2 border-t border-[#002C3E]/10">
+                        <button
+                          type="button"
+                          onClick={handleCreateCustomerInlineWarranty}
+                          className="bg-[#002C3E] hover:bg-[#F7444E] text-white text-xs font-bold px-4 py-2 rounded-lg transition-all"
+                        >
+                          שמור לקוח
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* תיאור התיקון / מוצר */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1.5">תיאור התיקון / פריטים המכוסים באחריות *</label>
+                  <input
+                    type="text"
+                    required
+                    value={warrantyVehicleDesc}
+                    onChange={(e) => setWarrantyVehicleDesc(e.target.value)}
+                    placeholder="לדוגמה: החלפת סוללת סמסונג 48V ואיטום רטיבות"
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/10 outline-none focus:border-[#78BCC4] transition-all text-sm font-medium text-[#002C3E]"
+                  />
+                </div>
+
+                {/* משך אחריות */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1.5">תקופת אחריות *</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[3, 6, 12].map((months) => (
+                      <label
+                        key={months}
+                        className={`flex items-center justify-center py-3 rounded-xl border font-bold text-sm cursor-pointer transition-all ${
+                          parseInt(warrantyDuration, 10) === months
+                            ? 'bg-[#002C3E] border-[#002C3E] text-white'
+                            : 'bg-[#F4F9FA] border-[#002C3E]/10 text-[#002C3E]/70 hover:bg-[#002C3E]/5'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="warrantyDuration"
+                          value={months}
+                          checked={parseInt(warrantyDuration, 10) === months}
+                          onChange={(e) => setWarrantyDuration(parseInt(e.target.value, 10))}
+                          className="sr-only"
+                        />
+                        <span>{months} חודשים</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* תאריך התחלה */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1.5">תאריך תחילת אחריות</label>
+                  <input
+                    type="date"
+                    required
+                    value={warrantyStartDate}
+                    onChange={(e) => setWarrantyStartDate(e.target.value)}
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/10 outline-none focus:border-[#78BCC4] transition-all text-sm font-medium text-[#002C3E]"
+                  />
+                </div>
+
+                {/* הערות */}
+                <div>
+                  <label className="block text-xs font-bold text-[#002C3E]/60 mb-1.5">הערות ותנאים נוספים (אופציונלי)</label>
+                  <textarea
+                    rows={2}
+                    value={warrantyNotes}
+                    onChange={(e) => setWarrantyNotes(e.target.value)}
+                    placeholder="מגבלות אחריות, תנאים וכד׳..."
+                    className="w-full bg-[#F4F9FA] px-4 py-3 rounded-xl border border-[#002C3E]/10 outline-none focus:border-[#78BCC4] transition-all text-sm font-medium text-[#002C3E] resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddWarrantyModal(false)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#002C3E] py-3.5 rounded-xl font-bold text-sm transition-all"
+                  >
+                    ביטול
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#F7444E] hover:bg-[#de3d46] text-white py-3.5 rounded-xl font-black text-sm transition-all shadow-md shadow-[#F7444E]/20"
+                  >
+                    <span className="flex items-center justify-center gap-1.5"><FiSave /> הנפק תעודה</span>
                   </button>
                 </div>
               </form>

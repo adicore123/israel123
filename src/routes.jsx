@@ -5,6 +5,7 @@ import PrivacyPage from './pages/PrivacyPage.jsx';
 import AccessibilityPage from './pages/AccessibilityPage.jsx';
 import LogsPage from './pages/LogsPage.jsx';
 import ServiceDashboardPage from './pages/ServiceDashboardPage.jsx';
+import WarrantyPage from './pages/WarrantyPage.jsx';
 
 export const routes = [
   {
@@ -18,6 +19,7 @@ export const routes = [
       { path: 'logs', element: <LogsPage /> },
       { path: 'service', element: <ServiceDashboardPage /> },
       { path: 'servvice', element: <ServiceDashboardPage /> },
+      { path: 'warranty/:id', element: <WarrantyPage /> },
     ],
   },
 ];

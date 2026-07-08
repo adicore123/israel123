@@ -21,7 +21,8 @@ async function prerender() {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
 
-  const server = app.listen(0);
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise((resolve) => server.once('listening', resolve));
   const port = server.address().port;
 
   console.log(`Starting headless browser to prerender...`);
@@ -31,10 +32,12 @@ async function prerender() {
   
   for (const route of routes) {
     const page = await browser.newPage();
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    page.on('pageerror', err => console.error('PAGE ERROR:', err));
     console.log(`Prerendering ${route}...`);
     
     // Go to route
-    await page.goto(`http://localhost:${port}${route}`, { waitUntil: 'networkidle0' });
+    await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: 'networkidle0' });
     
     // Ensure React has mounted and injected content
     await page.waitForFunction('document.getElementById("root").innerHTML !== ""');
