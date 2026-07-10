@@ -23,31 +23,24 @@ export default function WarrantyPage() {
     setLoading(true);
     setError(null);
 
-    // Try Supabase first
-    try {
-      // Check if it's a UUID or integer ID
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-      
-      let query = supabase.from('warranties').select('*');
-      if (isUuid) {
-        query = query.eq('uuid', id);
-      } else {
-        const parsedId = parseInt(id, 10);
-        if (isNaN(parsedId)) {
-          throw new Error('מזהה תעודה לא תקין');
+    // Check if it's a UUID (public links use the uuid as a secret token)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    // Public lookup by uuid via a SECURITY DEFINER RPC — this returns only the single
+    // matching warranty and does not require anon SELECT access on the whole table.
+    if (isUuid) {
+      try {
+        const { data, error: sbError } = await supabase
+          .rpc('get_warranty_by_uuid', { p_uuid: id });
+
+        if (!sbError && Array.isArray(data) && data.length > 0) {
+          processWarranty(data[0]);
+          setLoading(false);
+          return;
         }
-        query = query.eq('id', parsedId);
+      } catch (err) {
+        console.log('Supabase warranty fetch failed, trying local storage.', err);
       }
-
-      const { data, error: sbError } = await query.single();
-
-      if (!sbError && data) {
-        processWarranty(data);
-        setLoading(false);
-        return;
-      }
-    } catch (err) {
-      console.log('Supabase warranty fetch failed or table not found, trying local storage.', err);
     }
 
     // Fallback to LocalStorage

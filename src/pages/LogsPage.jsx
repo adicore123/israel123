@@ -18,16 +18,11 @@ import {
 } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 
-// Default Admin Password Hash for logs page (same as CRM: admin123)
-const HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
-
-async function sha256(msg) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-}
+// ההתחברות מתבצעת דרך Supabase Auth (email + סיסמה), משותפת עם ממשק הטכנאי.
 
 export default function LogsPage() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -61,14 +56,17 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
     FOR SELECT TO anon USING (true);
   `.trim();
 
-  // Check previous login session
+  // Check login session via Supabase Auth
   useEffect(() => {
     document.documentElement.dir = 'rtl';
     window.scrollTo(0, 0);
-    const session = localStorage.getItem('israelfix_logs_auth');
-    if (session === 'true') {
-      setAuthenticated(true);
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthenticated(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthenticated(!!session);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Fetch logs from Supabase
@@ -101,21 +99,19 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
     e.preventDefault();
     setLoginError(false);
     setLoginLoading(true);
-    const hash = await sha256(password);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     setLoginLoading(false);
-    
-    // Check against standard hash or local storage customized CRM hash
-    const storedHash = localStorage.getItem('israelfix_tech_password_hash') || HASH;
-    if (hash === storedHash) {
-      localStorage.setItem('israelfix_logs_auth', 'true');
-      setAuthenticated(true);
-    } else {
+    if (error) {
       setLoginError(true);
     }
+    // בהצלחה — onAuthStateChange יעדכן את מצב ההתחברות.
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('israelfix_logs_auth');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setAuthenticated(false);
     setLogs([]);
   };
@@ -177,31 +173,44 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
                 <FiUnlock className="w-8 h-8" strokeWidth={2.5} />
               </div>
               <h2 className="text-2xl font-black text-[#002C3E]">סטטיסטיקת כניסות וקליקים</h2>
-              <p className="text-[#002C3E]/50 text-sm mt-1">אנא הזן סיסמת מנהל כדי לצפות ביומנים ובכמות הכניסות</p>
+              <p className="text-[#002C3E]/50 text-sm mt-1">התחבר עם האימייל והסיסמה שלך כדי לצפות ביומנים ובכמות הכניסות</p>
             </div>
 
             <form onSubmit={handleLoginSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-bold text-[#002C3E] mb-2">סיסמת אבטחה</label>
+                <label className="block text-sm font-bold text-[#002C3E] mb-2">אימייל</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="הזן אימייל"
+                  autoComplete="username"
+                  dir="ltr"
+                  className="w-full bg-[#F4F9FA] px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-left text-sm placeholder:text-[#002C3E]/35"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-[#002C3E] mb-2">סיסמה</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="הזן סיסמה"
+                  autoComplete="current-password"
                   className="w-full bg-[#F4F9FA] px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:bg-white transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
-                  autoFocus
                 />
               </div>
-              
+
               {loginError && (
                 <p className="text-[#F7444E] text-xs font-bold text-center bg-[#FEF2F2] py-2 rounded-lg border border-[#F7444E]/20">
-                  סיסמה שגויה. נסה שנית.
+                  אימייל או סיסמה שגויים. נסה שנית.
                 </p>
               )}
 
               <button
                 type="submit"
-                disabled={loginLoading || !password}
+                disabled={loginLoading || !email || !password}
                 className="w-full bg-[#002C3E] hover:bg-[#F7444E] text-white px-6 py-4 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#002C3E]/10 disabled:opacity-50"
               >
                 {loginLoading ? 'מאמת...' : 'כניסה למערכת'}

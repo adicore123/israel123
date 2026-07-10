@@ -22,7 +22,6 @@ const app = (
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/accessibility" element={<AccessibilityPage />} />
           <Route path="/service" element={<ServiceDashboardPage />} />
-          <Route path="/servvice" element={<ServiceDashboardPage />} />
           <Route path="/logs" element={<LogsPage />} />
           <Route path="/warranty/:id" element={<WarrantyPage />} />
         </Routes>

@@ -8,13 +8,7 @@ import CatalogAdminPanel from '../components/CatalogAdminPanel.jsx';
 import { FiShoppingBag, FiUnlock, FiMenu, FiTrash2, FiPlus, FiSettings, FiTool, FiCalendar, FiBriefcase, FiUser, FiClock, FiAlertCircle, FiSave, FiDollarSign, FiClipboard, FiUsers, FiWifi, FiHome, FiLogOut, FiLock, FiDatabase, FiInfo, FiSearch, FiPhone, FiMapPin, FiCheckCircle, FiEdit2, FiActivity, FiShield } from 'react-icons/fi';
 
 
-// סיסמת כניסה: admin123
-const HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
-
-async function sha256(msg) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-}
+// ההתחברות מתבצעת דרך Supabase Auth (email + סיסמה). אין יותר סיסמה קשיחה בקוד.
 
 // נתוני הדגמה התחלתיים לטכנאי
 const MOCK_CALLS = [
@@ -140,23 +134,25 @@ const MOCK_WARRANTIES = [
 ];
 
 /* ─── LOGIN FORM ────────────────────────────────────────── */
-function LoginForm({ onSuccess }) {
+function LoginForm() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(false);
+    setError('');
     setLoading(true);
-    const hash = await sha256(password);
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     setLoading(false);
-    const storedHash = localStorage.getItem('israelfix_tech_password_hash') || HASH;
-    if (hash === storedHash) {
-      onSuccess();
-    } else {
-      setError(true);
+    if (authError) {
+      setError('אימייל או סיסמה שגויים. נסה שנית.');
     }
+    // בהצלחה — onAuthStateChange בקומפוננטה הראשית יעדכן את מצב ההתחברות.
   };
 
   return (
@@ -166,31 +162,44 @@ function LoginForm({ onSuccess }) {
           <FiUnlock className="w-8 h-8" strokeWidth={2.5} />
         </div>
         <h2 className="text-2xl font-black text-[#002C3E]">אזור טכנאי שטח</h2>
-        <p className="text-[#002C3E]/50 text-sm mt-1">אנא הזן סיסמת טכנאי על מנת לראות ולנהל את קריאות השירות</p>
+        <p className="text-[#002C3E]/50 text-sm mt-1">התחבר עם האימייל והסיסמה שלך כדי לראות ולנהל את קריאות השירות</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold text-[#002C3E] mb-2">סיסמת אבטחה</label>
+          <label className="block text-sm font-bold text-[#002C3E] mb-2">אימייל</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="הזן אימייל"
+            autoComplete="username"
+            dir="ltr"
+            className="w-full bg-white/60 px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:ring-2 focus:ring-[#78BCC4]/20 transition-all text-[#002C3E] text-left text-sm placeholder:text-[#002C3E]/35"
+            autoFocus
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-[#002C3E] mb-2">סיסמה</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="הזן סיסמת ניהול"
+            placeholder="הזן סיסמה"
+            autoComplete="current-password"
             className="w-full bg-white/60 px-4 py-3.5 rounded-xl border border-[#002C3E]/20 outline-none focus:border-[#78BCC4] focus:ring-2 focus:ring-[#78BCC4]/20 transition-all text-[#002C3E] text-right text-sm placeholder:text-[#002C3E]/35"
-            autoFocus
           />
         </div>
-        
+
         {error && (
           <p className="text-[#F7444E] text-xs font-bold text-center bg-[#FEF2F2] py-2 rounded-lg border border-[#F7444E]/20">
-            סיסמה שגויה. נסה שנית.
+            {error}
           </p>
         )}
 
         <button
           type="submit"
-          disabled={loading || !password}
+          disabled={loading || !email || !password}
           className="w-full bg-[#002C3E] hover:bg-[#F7444E] text-white px-6 py-4 rounded-xl font-bold text-sm shadow-md shadow-[#002C3E]/10 disabled:opacity-50 smooth-interactive active-click hover-tilt"
         >
           {loading ? 'מאמת...' : 'כניסה לממשק העבודה'}
@@ -252,6 +261,8 @@ export default function ServiceDashboardPage() {
   // סנכרון עם Supabase
   const [isUsingSupabase, setIsUsingSupabase] = useState(false);
   const [showSqlGuide, setShowSqlGuide] = useState(false);
+  // הודעת שגיאה גלויה כאשר שמירה לענן נכשלה (במקום "הצלחה" כוזבת)
+  const [cloudSaveError, setCloudSaveError] = useState('');
 
   // ניהול תעודות אחריות
   const [warranties, setWarranties] = useState([]);
@@ -335,14 +346,17 @@ export default function ServiceDashboardPage() {
     return customerName.toLowerCase().includes(shopFilter.toLowerCase());
   };
 
-  // בדיקת התחברות קודמת
+  // בדיקת התחברות דרך Supabase Auth
   useEffect(() => {
     document.documentElement.dir = 'rtl';
     window.scrollTo(0, 0);
-    const session = localStorage.getItem('israelfix_tech_auth');
-    if (session === 'true') {
-      setAuthenticated(true);
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthenticated(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthenticated(!!session);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // טעינת נתונים
@@ -361,34 +375,32 @@ export default function ServiceDashboardPage() {
 
         setCalls(data || []);
 
+        // המצב "מחובר לענן" ייקבע רק אם כל הטבלאות הקריטיות נטענו ללא שגיאה
+        let allSynced = true;
+
         // טעינת תיקונים מ-Supabase
         try {
           const { data: repData, error: repError } = await supabase
             .from('repairs')
             .select('*')
             .order('created_at', { ascending: false });
-          if (!repError && repData) {
-            setRepairs(repData);
-          } else {
-            loadRepairsFromLocalStorage();
-          }
+          if (repError) throw repError;
+          setRepairs(repData || []);
         } catch {
+          allSynced = false;
           loadRepairsFromLocalStorage();
         }
-        
+
         // טעינת לקוחות מ-Supabase
         try {
           const { data: custData, error: custError } = await supabase
             .from('customers')
             .select('*')
             .order('shop_name', { ascending: true });
-
-          if (!custError && custData) {
-            setCustomers(custData);
-          } else {
-            loadCustomersFromLocalStorage();
-          }
+          if (custError) throw custError;
+          setCustomers(custData || []);
         } catch {
+          allSynced = false;
           loadCustomersFromLocalStorage();
         }
 
@@ -398,16 +410,14 @@ export default function ServiceDashboardPage() {
             .from('warranties')
             .select('*')
             .order('created_at', { ascending: false });
-          if (!warrError && warrData) {
-            setWarranties(warrData);
-          } else {
-            loadWarrantiesFromLocalStorage();
-          }
+          if (warrError) throw warrError;
+          setWarranties(warrData || []);
         } catch {
+          allSynced = false;
           loadWarrantiesFromLocalStorage();
         }
 
-        setIsUsingSupabase(true);
+        setIsUsingSupabase(allSynced);
       } catch (err) {
         console.log('Supabase service_calls table not ready. Falling back to localStorage.', err.message);
         loadFromLocalStorage();
@@ -558,6 +568,7 @@ export default function ServiceDashboardPage() {
         updatedRepairs = [data[0], ...repairs];
       } catch (err) {
         console.error('Supabase repair insert failed, adding to local instead:', err.message);
+        setCloudSaveError('שמירת התיקון לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         const localRepair = { id: Date.now(), ...newRepair };
         updatedRepairs = [localRepair, ...repairs];
       }
@@ -609,6 +620,7 @@ export default function ServiceDashboardPage() {
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       } catch (err) {
         console.error('Supabase customer insert failed:', err.message);
+        setCloudSaveError('שמירת הלקוח לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         createdCust = { id: Date.now(), ...newCustomer };
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       }
@@ -672,6 +684,7 @@ export default function ServiceDashboardPage() {
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       } catch (err) {
         console.error('Supabase private customer insert failed:', err.message);
+        setCloudSaveError('שמירת הלקוח לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         createdCust = { id: Date.now(), ...newCustomer };
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       }
@@ -780,6 +793,7 @@ export default function ServiceDashboardPage() {
         updatedCalls = [data[0], ...calls];
       } catch (err) {
         console.error('Supabase insert failed, adding to local instead:', err.message);
+        setCloudSaveError('שמירת קריאת השירות לענן נכשלה — היא נשמרה מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         const localCall = { id: Date.now(), ...newCall };
         updatedCalls = [localCall, ...calls];
       }
@@ -870,6 +884,7 @@ export default function ServiceDashboardPage() {
         updatedCustList = [...customers, data[0]].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       } catch (err) {
         console.error('Supabase customer insert failed:', err.message);
+        setCloudSaveError('שמירת הלקוח לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         const localCust = { id: Date.now(), ...newCustomer };
         updatedCustList = [...customers, localCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       }
@@ -914,6 +929,7 @@ export default function ServiceDashboardPage() {
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       } catch (err) {
         console.error('Supabase customer insert failed:', err.message);
+        setCloudSaveError('שמירת הלקוח לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         createdCust = { id: Date.now(), ...newCustomer };
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       }
@@ -1090,6 +1106,7 @@ export default function ServiceDashboardPage() {
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       } catch (err) {
         console.error('Supabase customer insert failed:', err.message);
+        setCloudSaveError('שמירת הלקוח לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         createdCust = { id: Date.now(), ...newCustomer };
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       }
@@ -1151,6 +1168,7 @@ export default function ServiceDashboardPage() {
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       } catch (err) {
         console.error('Supabase customer insert failed:', err.message);
+        setCloudSaveError('שמירת הלקוח לענן נכשלה — הוא נשמר מקומית בלבד בדפדפן זה. בדוק את החיבור ונסה שוב.');
         createdCust = { id: Date.now(), ...newCustomer };
         updatedCustList = [...customers, createdCust].sort((a, b) => a.shop_name.localeCompare(b.shop_name));
       }
@@ -1198,28 +1216,30 @@ export default function ServiceDashboardPage() {
       uuid: tempUuid
     };
 
-    let updatedWarranties = [];
-
-    if (isUsingSupabase) {
-      try {
-        const { data, error } = await supabase
-          .from('warranties')
-          .insert([newWarranty])
-          .select();
-
-        if (error) throw error;
-        updatedWarranties = [data[0], ...warranties];
-      } catch (err) {
-        console.error('Supabase warranty insert failed, adding to local instead:', err.message);
-        const localWarr = { id: Date.now(), created_at: new Date().toISOString(), ...newWarranty };
-        updatedWarranties = [localWarr, ...warranties];
-      }
-    } else {
-      const localWarr = { id: Date.now(), created_at: new Date().toISOString(), ...newWarranty };
-      updatedWarranties = [localWarr, ...warranties];
+    // תעודת אחריות חייבת להישמר בענן — אחרת הקישור לא יעבוד ללקוח.
+    // לכן כאן אנחנו דורשים הצלחת ענן ולא נופלים בשקט ל-localStorage.
+    if (!isUsingSupabase) {
+      setCloudSaveError('אין חיבור לענן כרגע, ולכן לא ניתן ליצור תעודת אחריות שהלקוח יוכל לצפות בה. נסה לרענן את העמוד ולוודא שאתה מחובר.');
+      return;
     }
 
-    saveWarrantiesState(updatedWarranties);
+    let createdWarranty = null;
+    try {
+      const { data, error } = await supabase
+        .from('warranties')
+        .insert([newWarranty])
+        .select();
+
+      if (error) throw error;
+      createdWarranty = data[0];
+    } catch (err) {
+      console.error('Supabase warranty insert failed:', err.message);
+      setCloudSaveError('שמירת תעודת האחריות לענן נכשלה: ' + (err?.message || '') + '. התעודה לא נוצרה — נסה שוב.');
+      return;
+    }
+
+    setCloudSaveError('');
+    saveWarrantiesState([createdWarranty, ...warranties]);
 
     // Reset form states
     setWarrantyCustId('');
@@ -1231,7 +1251,7 @@ export default function ServiceDashboardPage() {
     setWarrantyNotes('');
     setShowAddWarrantyModal(false);
 
-    alert('תעודת האחריות נוצרה בהצלחה!');
+    alert('תעודת האחריות נוצרה בהצלחה ונשמרה בענן!');
   };
 
   // מחיקת תעודת אחריות
@@ -1272,8 +1292,8 @@ export default function ServiceDashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('israelfix_tech_auth');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setAuthenticated(false);
   };
 
@@ -1293,13 +1313,13 @@ export default function ServiceDashboardPage() {
       return;
     }
     try {
-      const hash = await sha256(newPassword);
-      localStorage.setItem('israelfix_tech_password_hash', hash);
-      setPasswordStatus('success:הסיסמה שונתה בהצלחה! היא תהיה פעילה בכניסה הבאה.');
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setPasswordStatus('success:הסיסמה שונתה בהצלחה!');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setPasswordStatus('error:אירעה שגיאה בשינוי הסיסמה');
+      setPasswordStatus('error:אירעה שגיאה בשינוי הסיסמה: ' + (err?.message || ''));
     }
   };
 
@@ -1431,10 +1451,7 @@ CREATE POLICY "Allow anonymous read and write" ON public.warranties
             </span>
           </div>
 
-          <LoginForm onSuccess={() => {
-            localStorage.setItem('israelfix_tech_auth', 'true');
-            setAuthenticated(true);
-          }} />
+          <LoginForm />
 
           <footer className="mt-8 text-center text-xs text-[#002C3E]/30 font-medium">
             &copy; {new Date().getFullYear()} israelfix · ניהול קריאות שירות וסדר לטכנאי
@@ -1448,6 +1465,22 @@ CREATE POLICY "Allow anonymous read and write" ON public.warranties
     <>
       <PageSeo title="ממשק קריאות שירות" description="לוח עבודה דיגיטלי וסדר לטכנאי שטח - israelfix" path="/service" />
       <AccessibilityMenu stackAboveWhatsApp={false} />
+
+      {cloudSaveError && (
+        <div className="fixed top-4 inset-x-0 z-[60] flex justify-center px-4" dir="rtl">
+          <div className="max-w-xl w-full bg-[#F7444E] text-white rounded-2xl shadow-2xl px-5 py-4 flex items-start gap-3">
+            <FiAlertCircle className="w-6 h-6 shrink-0 mt-0.5" />
+            <p className="text-sm font-bold flex-1 leading-relaxed">{cloudSaveError}</p>
+            <button
+              onClick={() => setCloudSaveError('')}
+              className="shrink-0 text-white/80 hover:text-white font-black text-lg leading-none"
+              aria-label="סגור הודעה"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row min-h-screen bg-[#F4F9FA] font-sans selection:bg-[#78BCC4]/20 text-[#002C3E]" dir="rtl">
         

@@ -6,6 +6,7 @@ import ContactForm from './components/ContactForm.jsx';
 import AccessibilityMenu from './components/AccessibilityMenu.jsx';
 import SeoHead from './components/SeoHead.jsx';
 import WorkGalleryCards from './components/WorkGalleryCards.jsx';
+import { trackEvent } from './lib/analytics.js';
 
 const galleryImported = {
   ...import.meta.glob('./assets/gallery/*.{jpg,jpeg,jpe,png,webp}', { eager: true, import: 'default' }),
@@ -119,6 +120,11 @@ export default function App() {
   const whyUsRef = useRef(null);
   const [whyUsInView, setWhyUsInView] = useState(false);
 
+  // מעקב כניסה לעמוד (visit) — נרשם פעם אחת לכל טעינה
+  useEffect(() => {
+    trackEvent('visit');
+  }, []);
+
   useEffect(() => {
     document.documentElement.dir = 'rtl';
     document.documentElement.style.scrollBehavior = 'smooth';
@@ -166,6 +172,7 @@ export default function App() {
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => {
+          trackEvent('whatsapp_click');
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('event', 'click_whatsapp', {
               event_category: 'Contact',
@@ -182,6 +189,7 @@ export default function App() {
       <a
         href="tel:0545050609"
         onClick={() => {
+          trackEvent('phone_click');
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('event', 'click_phone', {
               event_category: 'Contact',
