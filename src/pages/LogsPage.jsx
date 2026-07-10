@@ -69,9 +69,10 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch logs from Supabase
-  const fetchLogs = async () => {
-    setLoading(true);
+  // Fetch logs from Supabase. Pass { silent: true } for background auto-refresh
+  // so the screen doesn't flash a loading spinner on every poll.
+  const fetchLogs = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     setDbError(null);
     try {
       const { data, error } = await supabase
@@ -90,9 +91,13 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
   };
 
   useEffect(() => {
-    if (authenticated) {
-      fetchLogs();
-    }
+    if (!authenticated) return;
+    fetchLogs();
+    // רענון אוטומטי כל 20 שניות כדי להציג נתונים חדשים כמעט בזמן אמת
+    const interval = setInterval(() => {
+      fetchLogs({ silent: true });
+    }, 20000);
+    return () => clearInterval(interval);
   }, [authenticated]);
 
   const handleLoginSubmit = async (e) => {
@@ -246,7 +251,7 @@ CREATE POLICY "Allow anonymous read" ON public.site_analytics
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={fetchLogs}
+                onClick={() => fetchLogs()}
                 className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-colors"
                 title="רענן נתונים"
               >
